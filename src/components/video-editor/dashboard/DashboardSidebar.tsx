@@ -41,17 +41,16 @@ export function DashboardSidebar({
 		<>
 			<aside
 				aria-label="Library navigation"
-				className="flex w-48 shrink-0 flex-col bg-transparent px-4 pb-5 pt-12 lg:w-56"
+				className="flex w-48 shrink-0 flex-col bg-transparent px-4 pb-5 pt-4 lg:w-56"
 			>
-				<div className="mb-4 flex h-10 items-center gap-2.5 px-3">
+				<div className="mb-3 flex h-10 items-center justify-start px-3">
 					<img
-						src={`${import.meta.env.BASE_URL}app-icons/recordly-64.png`}
+						src={`${import.meta.env.BASE_URL}app-icons/recordly-mark.svg`}
 						alt=""
-						className="size-7 rounded-lg"
+						className="size-9"
 					/>
-					<span className="text-[15px] font-semibold tracking-tight">Recordly</span>
 				</div>
-				<RecordNewButton busy={busy} run={run} className="mb-5 w-full" />
+				<RecordNewButton busy={busy} run={run} className="mb-4 w-full" />
 				<nav className="space-y-1">
 					<Button
 						variant="ghost"
@@ -87,7 +86,7 @@ export function DashboardSidebar({
 						Raw
 					</Button>
 				</nav>
-				<div className="mb-2 mt-9 flex items-center justify-between pl-3">
+				<div className="mb-2 mt-6 flex items-center justify-between pl-3">
 					<h2 className="text-[13px] font-semibold tracking-tight text-foreground/80">
 						Folders
 					</h2>

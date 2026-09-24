@@ -320,7 +320,12 @@ export async function handleOGImage(env, shareCode) {
   <polygon points="590,270 590,310 620,290" fill="rgba(255,255,255,0.3)"/>
   <text x="600" y="400" text-anchor="middle" fill="#e5e5e5" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="22" font-weight="500">${escapeHTML(title)}</text>
   <text x="600" y="440" text-anchor="middle" fill="#888" font-family="monospace" font-size="13" letter-spacing="1">${duration}  \u00b7  ${date}${res ? '  \u00b7  ' + res : ''}</text>
-  <text x="600" y="570" text-anchor="middle" fill="#2563eb" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="14" font-weight="600" letter-spacing="2">RECORDLY</text>
+  <svg x="535" y="548" width="36" height="37" viewBox="70 32 132 136" aria-label="Yasakei mark">
+    <path d="M77 39h55c38 0 62 27 62 61s-24 61-62 61H77l20-22h34c22 0 36-16 36-39s-14-39-36-39H97Z" fill="#8B5CF6" stroke="#8B5CF6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M108 91L119 100L108 109" fill="none" stroke="#8B5CF6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M141 91V109M132 100H150" fill="none" stroke="#8B5CF6" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+  <text x="600" y="570" text-anchor="middle" fill="#8B5CF6" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="14" font-weight="600" letter-spacing="2">RECORDLY</text>
 </svg>`;
 
   return new Response(svg, {

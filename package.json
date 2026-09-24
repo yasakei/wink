@@ -1,6 +1,6 @@
 {
 	"name": "recordly",
-	"productName": "Recordly",
+	"productName": "Wink",
 	"description": "A free, creator-focused screen recorder with auto-zoom, cursor effects, backgrounds, annotations, and more - built for polished videos out of the box.",
 	"author": "webadderall",
 	"homepage": "https://github.com/webadderallorg/Recordly",
@@ -25,8 +25,9 @@
 		"preview": "vite preview --config vite.config.ts",
 		"rebuild:native": "node ./node_modules/@electron/rebuild/lib/cli.js --force --only uiohook-napi",
 		"build:native-helpers": "node scripts/build-native-helpers.mjs",
+		"build:wayland-helper": "node scripts/build-wayland-helper.mjs",
 		"build:whisper-runtime": "node scripts/build-whisper-runtime.mjs",
-		"build:platform-native-helpers": "npm run build:whisper-runtime && npm run build:native-helpers && npm run build:windows-capture && npm run build:windows-gpu-export && npm run build:nvidia-cuda-compositor && npm run build:cursor-monitor",
+		"build:platform-native-helpers": "npm run build:whisper-runtime && npm run build:native-helpers && npm run build:wayland-helper && npm run build:windows-capture && npm run build:windows-gpu-export && npm run build:nvidia-cuda-compositor && npm run build:cursor-monitor",
 		"build:windows-gpu-export": "node scripts/build-windows-gpu-export.mjs",
 		"build:nvidia-cuda-compositor": "node scripts/build-nvidia-cuda-compositor.mjs",
 		"build:windows-capture": "node scripts/build-windows-capture.mjs",

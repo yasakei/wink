@@ -1,7 +1,7 @@
 {
 	"app": {
-		"name": "Recordly",
-		"editorTitle": "Recordly Editor",
+		"name": "Wink",
+		"editorTitle": "Wink Editor",
 		"subtitle": "Screen recording and editing",
 		"language": "Language",
 		"manageRecordings": "Open recordings folder"

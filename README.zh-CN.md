@@ -1,12 +1,12 @@
 语言: [EN](README.md) | 简中
 
 <p align="center">
-  <img width="220" alt="Recordly logo" src="https://github.com/user-attachments/assets/082bb4b0-5fc5-4e9f-abda-55611fd6aded" />
+  <img width="180" alt="Recordly logo" src="branding/source-assets/recordlygeneric.svg" />
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-111827?style=for-the-badge" alt="macOS Windows Linux" />
-  <img src="https://img.shields.io/badge/open%20source-AGPL3.0-2563eb?style=for-the-badge" alt="AGPL 3.0 license" />
+  <img src="https://img.shields.io/badge/open%20source-AGPL3.0-8B5CF6?style=for-the-badge" alt="AGPL 3.0 license" />
 </p>
 
 ### 无需额外剪辑，也能做出精致的屏幕录制。

@@ -109,7 +109,7 @@ export function EditorSidebar({
 						variant="ghost"
 						isIconOnly
 						className="mt-auto"
-						aria-label="Recordly account"
+						aria-label="Wink account"
 						onPress={onAccountClick}
 					>
 						<AccountAvatar user={accountUser} className="!size-7" />

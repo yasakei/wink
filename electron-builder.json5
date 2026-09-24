@@ -10,10 +10,10 @@
     "node_modules/uiohook-napi/**",
     "electron/native/bin/**"
   ],
-  "productName": "Recordly",
+  "productName": "Wink",
   "protocols": [
     {
-      "name": "Recordly authentication",
+      "name": "Wink authentication",
       "schemes": ["recordly"]
     }
   ],
@@ -76,14 +76,14 @@
     "icon": "icons/icons/mac/icon.icns",
     "artifactName": "${productName}-${arch}.${ext}",
     "extendInfo": {
-      "NSAudioCaptureUsageDescription": "Recordly needs audio capture permission to record system audio.",
-      "NSCameraUsageDescription": "Recordly needs camera access to record webcam video.",
-      "NSMicrophoneUsageDescription": "Recordly needs microphone access to record voice audio.",
+      "NSAudioCaptureUsageDescription": "Wink needs audio capture permission to record system audio.",
+      "NSCameraUsageDescription": "Wink needs camera access to record webcam video.",
+      "NSMicrophoneUsageDescription": "Wink needs microphone access to record voice audio.",
       "NSCameraUseContinuityCameraDeviceType": true,
       "com.apple.security.device.audio-input": true,
       "CFBundleDocumentTypes": [
         {
-          "CFBundleTypeName": "Recordly Project",
+          "CFBundleTypeName": "Wink Project",
           "CFBundleTypeRole": "Editor",
           "CFBundleTypeExtensions": ["recordly"],
           "CFBundleTypeIconFile": "icon.icns",
@@ -94,7 +94,7 @@
       "UTExportedTypeDeclarations": [
         {
           "UTTypeIdentifier": "dev.recordly.app.project",
-          "UTTypeDescription": "Recordly Project",
+          "UTTypeDescription": "Wink Project",
           "UTTypeConformsTo": ["public.json"],
           "UTTypeTagSpecification": {
             "public.filename-extension": ["recordly"],
@@ -117,7 +117,7 @@
       "nsis"
     ],
     "icon": "icons/icons/win/icon.ico",
-    "executableName": "Recordly",
+    "executableName": "Wink",
     "artifactName": "${productName}-windows-${arch}.${ext}"
   },
   "nsis": {
@@ -125,6 +125,6 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "Recordly"
+    "shortcutName": "Wink"
   }
 }

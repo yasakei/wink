@@ -2,7 +2,7 @@
 	"updates": {
 		"title": "Updates",
 		"experimental": "Experimental updates",
-		"experimentalDescription": "You've opted into experimental updates so you have the choice to test the latest update of Recordly before it's widely available.",
+		"experimentalDescription": "You've opted into experimental updates so you have the choice to test the latest update of Wink before it's widely available.",
 		"saveFailed": "Failed to change the update channel."
 	},
 	"zoom": {
@@ -89,7 +89,7 @@
 		"connectedZoomDuration": "Connected Zoom Duration",
 		"connectedZoomEasing": "Connected Pan Curve",
 		"zoomEasingOptions": {
-			"recordly": "Recordly",
+			"recordly": "Wink",
 			"glide": "Glide",
 			"smooth": "Smooth",
 			"snappy": "Snappy",

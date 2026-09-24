@@ -1,6 +1,6 @@
 {
 	"cloud": {
-		"signInRequired": "Sign in to Recordly before creating a shared link.",
+		"signInRequired": "Sign in to Wink before creating a shared link.",
 		"prepareFailed": "Could not prepare the current edit for sharing.",
 		"uploadFailed": "Cloud upload failed.",
 		"linkCreated": "Share link created",
@@ -17,15 +17,15 @@
 		"publish": "Publish and create link",
 		"createLinkTitle": "Create a shareable link",
 		"notesPlaceholder": "Add context, instructions, or a short summary for viewers…",
-		"description": "Publish the current edit to a Recordly viewing and feedback page. No download is required. Shared videos are prepared at up to 1080p.",
+		"description": "Publish the current edit to a Wink viewing and feedback page. No download is required. Shared videos are prepared at up to 1080p.",
 		"uploading": "Uploading… {progress}%",
-		"googleUnavailable": "Google sign-in isn't enabled yet. Use email for now, or ask your Recordly administrator to connect Google.",
-		"xUnavailable": "X sign-in isn't enabled yet. Use email for now, or ask your Recordly administrator to connect X.",
-		"providerUnavailable": "This sign-in method isn't enabled for Recordly yet. Use email for now.",
+		"googleUnavailable": "Google sign-in isn't enabled yet. Use email for now, or ask your Wink administrator to connect Google.",
+		"xUnavailable": "X sign-in isn't enabled yet. Use email for now, or ask your Wink administrator to connect X.",
+		"providerUnavailable": "This sign-in method isn't enabled for Wink yet. Use email for now.",
 		"enterEmail": "Enter your email address first.",
 		"resetSent": "Password reset email sent.",
-		"accountHeading": "Your Recordly account",
-		"signInHeading": "Sign into Recordly",
+		"accountHeading": "Your Wink account",
+		"signInHeading": "Sign into Wink",
 		"signInShareDescription": "Sign in to publish this video and manage its shared link.",
 		"signInDescription": "Access your recordings and shared links.",
 		"signingOut": "Signing out…",
@@ -172,7 +172,7 @@
 	"account": { "title": "Account", "comingSoon": "Account coming soon" },
 	"nativeCaptureUnavailable": {
 		"title": "Nothing’s broken, but we won’t be able to render an animated cursor overlay.",
-		"description": "Your device does not support native capture. This could be for a variety of reasons we haven’t figured out yet. This doesn’t break Recordly, but it does make cursor smoothing impossible.",
+		"description": "Your device does not support native capture. This could be for a variety of reasons we haven’t figured out yet. This doesn’t break Wink, but it does make cursor smoothing impossible.",
 		"confirm": "Okay"
 	},
 	"exportStatus": {

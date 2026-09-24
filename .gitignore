@@ -40,6 +40,8 @@ electron/native/gpu-export-probe/build/
 electron/native/nvidia-cuda-compositor/build/
 electron/native/bin/*/whisper-*
 electron/native/bin/*/whisper-runtime.json
+electron/native/bin/*/wayland-capture-cli
+libs/**/target/
 
 # Local debug helpers
 tmp-*.ps1

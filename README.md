@@ -1,12 +1,12 @@
 Language: EN | [简中](README.zh-CN.md)
 
 <p align="center">
-  <img width="220" alt="Recordly Logo" src="https://github.com/user-attachments/assets/414b8838-6731-45d4-a815-6e3c0aa1fe52" />
+  <img width="180" alt="Recordly Logo" src="branding/source-assets/recordlygeneric.svg" />
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-111827?style=for-the-badge" alt="macOS Windows Linux" />
-  <img src="https://img.shields.io/badge/open%20source-AGPL3.0-2563eb?style=for-the-badge" alt="AGPL 3.0 license" />
+  <img src="https://img.shields.io/badge/open%20source-AGPL3.0-8B5CF6?style=for-the-badge" alt="AGPL 3.0 license" />
 </p>
 
 ### Create polished demo videos in minutes
