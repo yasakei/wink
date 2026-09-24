@@ -12,6 +12,8 @@
 /* Match the desktop dashboard typography. */
 @layer base {
   :root {
+    --accent: oklch(54.1% 0.281 293.009);
+    --link: var(--accent);
     font-family:
       "DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }

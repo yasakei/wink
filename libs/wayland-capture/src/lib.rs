@@ -37,21 +37,76 @@ pub async fn request_screencast() -> Result<(u32, OwnedFd)> {
     let proxy = Screencast::new()
         .await
         .context("connect to org.freedesktop.portal.ScreenCast")?;
+    // Not all compositors/portals support CursorMode::Metadata (e.g.
+    // xdg-desktop-portal-hyprland only advertises Hidden|Embedded = 3).
+    // Query what the portal supports and prefer Metadata, falling back to
+    // Embedded (cursor burned into the stream) and then Hidden.
+    let cursor_modes = proxy.available_cursor_modes().await.ok();
+    let preferred_modes = if let Some(modes) = cursor_modes {
+        let mut ordered = Vec::new();
+        if modes.contains(CursorMode::Metadata) {
+            ordered.push(CursorMode::Metadata);
+        }
+        if modes.contains(CursorMode::Embedded) {
+            ordered.push(CursorMode::Embedded);
+        }
+        if modes.contains(CursorMode::Hidden) {
+            ordered.push(CursorMode::Hidden);
+        }
+        if ordered.is_empty() {
+            vec![CursorMode::Embedded, CursorMode::Hidden]
+        } else {
+            ordered
+        }
+    } else {
+        vec![
+            CursorMode::Metadata,
+            CursorMode::Embedded,
+            CursorMode::Hidden,
+        ]
+    };
     let session = proxy
         .create_session()
         .await
         .context("create ScreenCast session")?;
-    proxy
-        .select_sources(
-            &session,
-            CursorMode::Metadata,
-            (SourceType::Monitor | SourceType::Window).into(),
-            false,
-            None,
-            PersistMode::DoNot,
-        )
-        .await
-        .context("select ScreenCast sources")?;
+    let mut select_error = None;
+    for cursor_mode in &preferred_modes {
+        let result = proxy
+            .select_sources(
+                &session,
+                *cursor_mode,
+                (SourceType::Monitor | SourceType::Window).into(),
+                false,
+                None,
+                PersistMode::DoNot,
+            )
+            .await;
+        match result {
+            Ok(_) => {
+                select_error = None;
+                break;
+            }
+            Err(error) => {
+                let message = format!("{error:#}");
+                // Retry with the next cursor mode when the portal rejects the
+                // requested mode (e.g. Hyprland: "Unavailable cursor mode 4").
+                let unsupported_mode = message.contains("InvalidArgument")
+                    || message.contains("Unavailable cursor mode")
+                    || message.contains("cursor");
+                if unsupported_mode {
+                    eprintln!(
+                        "portal rejected cursor mode {cursor_mode:?}, trying fallback: {error:#}"
+                    );
+                    select_error = Some(error);
+                    continue;
+                }
+                return Err(error).context("select ScreenCast sources");
+            }
+        }
+    }
+    if let Some(error) = select_error {
+        return Err(anyhow::anyhow!("{error:#}").context("select ScreenCast sources"));
+    }
     let streams = proxy
         .start(&session, None)
         .await
@@ -113,8 +168,14 @@ fn run_pipeline(
     drop(fd);
     let raw_fd = owned_dup.as_raw_fd();
     std::mem::forget(owned_dup);
+    // PipeWire screencast only yields frames on damage (screen changes),
+    // so the raw stream is variable-frame-rate. `videorate` pads it with
+    // duplicate frames to a steady 30fps: without this the output duration
+    // would only count changed frames (static screens play back too fast),
+    // and any catch-up duplication deferred to stop time would stall/crash
+    // the finish path on long static recordings.
     let launch = format!(
-        "pipewiresrc name=src fd={raw_fd} path={node_id} always-copy=true use-bufferpool=false ! videoconvert ! video/x-raw,format=BGRx ! appsink name=sink emit-signals=false max-buffers=2 drop=true sync=false"
+        "pipewiresrc name=src fd={raw_fd} path={node_id} always-copy=true use-bufferpool=false ! videoconvert ! videorate ! video/x-raw,format=BGRx,framerate=30/1 ! appsink name=sink emit-signals=false max-buffers=8 drop=true sync=false"
     );
     let pipeline = gst::parse::launch(&launch).context("parse capture pipeline")?;
     let bin = pipeline

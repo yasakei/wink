@@ -97,24 +97,27 @@ async fn main() -> Result<()> {
     let mut cursor_samples = Vec::new();
     push_cursor_sample(&mut cursor_samples, &first_meta, started_at);
 
+    // The GStreamer pipeline (`videorate`) already enforces a steady 30fps
+    // stream, so every frame is pushed exactly once: stop stays instant no
+    // matter how static the screen was.
+    const TARGET_FPS: u32 = 30;
     let mut recorder = start_recording(
         first_meta.width,
         first_meta.height,
-        first_meta.fps,
+        TARGET_FPS,
         &output_path,
     )
     .await?;
     recorder.push_frame(&first_frame).await?;
+    let mut frames_written: u64 = 1;
     println!("READY:{}", output_path.display());
     use std::io::Write;
     std::io::stdout().flush()?;
 
     let mut input = BufReader::new(tokio::io::stdin()).lines();
-    let stop_input = input.next_line();
-    tokio::pin!(stop_input);
     loop {
         tokio::select! {
-            line = &mut stop_input => {
+            line = input.next_line() => {
                 match line {
                     Ok(Some(value)) if value.trim() == "stop" => break,
                     Ok(Some(_)) => {}
@@ -128,10 +131,16 @@ async fn main() -> Result<()> {
                 if meta.kind == FrameKind::Mem && !bytes.is_empty() {
                     push_cursor_sample(&mut cursor_samples, &meta, started_at);
                     recorder.push_frame(&bytes).await?;
+                    frames_written += 1;
                 }
             }
         }
     }
+
+    eprintln!(
+        "stop after {:.2}s: frames_written={frames_written}",
+        started_at.elapsed().as_secs_f64()
+    );
 
     let path = recorder.finish().await?;
     write_cursor_telemetry(&path, cursor_samples).await?;

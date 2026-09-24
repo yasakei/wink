@@ -52,8 +52,10 @@
 	:root {
 		--app-font-sans:
 			"DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		--accent: oklch(54.1% 0.281 293.009);
+		--link: var(--accent);
 		--brand-accent: var(--accent);
-		--brand-accent-rgb: 0, 111, 238;
+		--brand-accent-rgb: 124, 58, 237;
 		--primary: var(--accent);
 		--primary-foreground: var(--accent-foreground);
 		--muted-foreground: var(--muted);

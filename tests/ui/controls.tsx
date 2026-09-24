@@ -45,7 +45,7 @@ function Controls() {
 		<main className="mx-auto max-w-3xl p-8">
 			<Card>
 				<Card.Header>
-					<Card.Title>Recordly controls</Card.Title>
+					<Card.Title>Wink controls</Card.Title>
 				</Card.Header>
 				<Card.Content className="gap-5">
 					<Button onClick={toggleTheme}>Toggle theme</Button>

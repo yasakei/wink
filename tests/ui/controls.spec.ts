@@ -1,4 +1,17 @@
 import { expect, test } from "@playwright/test";
+
+test("uses violet as the default control accent", async ({ page }) => {
+	await page.goto("/tests/ui/controls.html");
+	const accent = await page.evaluate(() =>
+		getComputedStyle(document.documentElement).getPropertyValue("--accent").trim(),
+	);
+	expect(accent).toBe("oklch(54.1% 0.281 293.009)");
+	await expect(page.getByRole("button", { name: "Save project", exact: true })).toHaveCSS(
+		"background-color",
+		"rgb(124, 58, 237)",
+	);
+});
+
 test("HeroUI controls preserve editing, focus, keyboard and overlay behavior", async ({ page }) => {
 	const errors: string[] = [];
 	page.on("pageerror", (error) => errors.push(error.message));

@@ -401,6 +401,7 @@ function waitForLinuxCaptureReady(process: ChildProcessWithoutNullStreams): Prom
 	return new Promise((resolve, reject) => {
 		let settled = false;
 		let output = "";
+		let stderrOutput = "";
 		const cleanup = () => {
 			clearTimeout(timeout);
 			process.stdout?.off("data", onData);
@@ -417,15 +418,25 @@ function waitForLinuxCaptureReady(process: ChildProcessWithoutNullStreams): Prom
 		};
 		const onData = (chunk: Buffer) => {
 			output += chunk.toString();
-			setNativeCaptureOutputBuffer(output);
+			setNativeCaptureOutputBuffer((output + stderrOutput).slice(-8000));
 			if (output.includes("READY:")) finish();
 		};
 		const onErrorData = (chunk: Buffer) => {
-			console.warn(`[linux-portal-capture] ${chunk.toString().trim()}`);
+			const text = chunk.toString();
+			stderrOutput += text;
+			setNativeCaptureOutputBuffer((output + stderrOutput).slice(-8000));
+			console.warn(`[linux-portal-capture] ${text.trim()}`);
 		};
 		const onError = (error: Error) => finish(error);
 		const onClose = (code: number | null) => {
-			if (!settled) finish(new Error(`Linux portal capture exited before ready (${code})`));
+			if (!settled) {
+				const detail = (output + stderrOutput).trim().slice(-2000);
+				finish(
+					new Error(
+						`Linux portal capture exited before ready (${code})${detail ? `: ${detail}` : ""}`,
+					),
+				);
+			}
 		};
 		const timeout = setTimeout(
 			() => finish(new Error("Timed out waiting for Linux portal capture")),
