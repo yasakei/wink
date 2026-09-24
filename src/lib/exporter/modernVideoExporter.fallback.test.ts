@@ -25,6 +25,7 @@ const mocks = vi.hoisted(() => {
 		frameRendererDestroy: vi.fn(),
 		frameRendererGetBackend: vi.fn(() => "webgl"),
 		frameRendererInitialize: vi.fn(async () => {}),
+		frameRendererConstructor: vi.fn(),
 		muxerDestroy: vi.fn(),
 		muxerFinalize: vi.fn(async () => ({
 			mode: "buffer" as const,
@@ -48,7 +49,8 @@ vi.mock("./streamingDecoder", () => ({
 }));
 
 vi.mock("./modernFrameRenderer", () => ({
-	FrameRenderer: vi.fn().mockImplementation(function () {
+	FrameRenderer: vi.fn().mockImplementation(function (config: unknown) {
+		mocks.frameRendererConstructor(config);
 		return {
 			destroy: mocks.frameRendererDestroy,
 			getRendererBackend: mocks.frameRendererGetBackend,
@@ -78,6 +80,38 @@ describe("ModernVideoExporter native fallback routing", () => {
 		vi.clearAllMocks();
 		if (vi.isMockFunction(console.error)) console.error.mockRestore();
 		vi.unstubAllGlobals();
+	});
+
+	it("uses WebGL by default and preserves an explicit WebGPU renderer", async () => {
+		const createExporter = (preferredRenderBackend?: "webgl" | "webgpu") => {
+			const exporter = new ModernVideoExporter({
+				videoUrl: "file:///recording.mp4",
+				width: 1920,
+				height: 1080,
+				frameRate: 30,
+				bitrate: 8_000_000,
+				wallpaper: "#000000",
+				backendPreference: "webcodecs",
+				preferredRenderBackend,
+			} as never) as unknown as {
+				export: () => Promise<{ success: boolean }>;
+				initializeEncoder: () => Promise<unknown>;
+			};
+			vi.spyOn(exporter, "initializeEncoder").mockResolvedValue({
+				hardwareAcceleration: "prefer-software",
+			});
+			return exporter;
+		};
+
+		await createExporter().export();
+		expect(mocks.frameRendererConstructor).toHaveBeenLastCalledWith(
+			expect.objectContaining({ preferredRenderBackend: "webgl" }),
+		);
+
+		await createExporter("webgpu").export();
+		expect(mocks.frameRendererConstructor).toHaveBeenLastCalledWith(
+			expect.objectContaining({ preferredRenderBackend: "webgpu" }),
+		);
 	});
 
 	it("removes failed native writes without creating an unhandled rejection", async () => {
