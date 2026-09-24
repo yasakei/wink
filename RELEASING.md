@@ -1,4 +1,4 @@
-# Releasing Recordly
+# Releasing Wink
 
 This repository now uses `electron-builder` + `electron-updater` for macOS, Windows, and Linux auto-updates.
 

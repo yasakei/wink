@@ -52,8 +52,8 @@
   "publish": [
     {
       "provider": "github",
-      "owner": "webadderall",
-      "repo": "Recordly",
+      "owner": "yasakei",
+      "repo": "wink",
       "tagNamePrefix": "v",
       "publishAutoUpdate": true
     }

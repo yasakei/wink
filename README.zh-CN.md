@@ -1,400 +1,189 @@
-语言: [EN](README.md) | 简中
+语言: [English](README.md) | [简体中文](README.zh-CN.md)
 
 <p align="center">
-  <img width="180" alt="Recordly logo" src="branding/source-assets/recordlygeneric.svg" />
+  <img width="180" alt="Wink 标志" src="public/app-icons/recordly-mark.svg" />
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-111827?style=for-the-badge" alt="macOS Windows Linux" />
-  <img src="https://img.shields.io/badge/open%20source-AGPL3.0-8B5CF6?style=for-the-badge" alt="AGPL 3.0 license" />
+  <img src="https://img.shields.io/badge/license-AGPL3.0-8B5CF6?style=for-the-badge" alt="AGPL 3.0 license" />
 </p>
 
-### 无需额外剪辑，也能做出精致的屏幕录制。
-[Recordly](https://www.recordly.dev) 是一款**开源屏幕录制器**和编辑器，适合制作**操作讲解、演示、产品视频**等内容。  
-**欢迎提交 PR。** [赞助](https://ko-fi.com/webadderall/goal?g=0)
+# Wink
 
-https://github.com/user-attachments/assets/9b66c71d-ac97-49ff-a0c9-63ac26edf2e4
+Wink 是一款跨平台桌面屏幕录制与视频编辑工具，适合制作操作讲解、产品演示、教程，以及需要比原始录屏更精致的快速演示视频。
 
----
+录制显示器或应用窗口，在时间线上添加动效和重点强调，修饰画面，并导出适合分享的 MP4 或 GIF，不需要把原始素材交给另一套动效工作流。
 
-## Recordly 是什么？
+> **项目身份：** Wink 是当前的产品名称。本仓库是 Recordly 的下游重品牌，而 Recordly 最初源自 OpenScreen。`recordly` 包名、`.recordly` 项目文件、`recordly://` 回调和已有应用 ID 仍保留，用于兼容性。
 
-Recordly 是一款桌面应用，用于录制并编辑屏幕内容，内置面向演示视频的动态呈现工具。你不需要再把原始素材交给动效设计师去补缩放、光标润色或样式化背景，Recordly 可以在一个地方免费完成整套流程。
+## 截图与演示
 
-Recordly 支持：
+以下媒体文件都保存在仓库中，不依赖旧项目的外部截图。
 
-- **macOS** 14.0+
-- **Windows** 10 Build 19041+
-- **Linux** 现代发行版
+### 编辑器与时间线
 
-平台说明：
-
-- **macOS** 使用基于 ScreenCaptureKit 的原生捕获辅助程序。
-- **Windows** 在支持的系统版本上使用原生 Windows Graphics Capture（WGC）辅助程序，并支持原生 WASAPI 音频。
-- **Linux** 通过 Electron 捕获 API 录制。目前 Linux 还不支持隐藏真实光标。
-
----
-
-# 核心功能
-
-## 自动缩放、光标润色与样式化画面
-Recordly 可以根据操作自动强调重点区域，平滑光标运动，添加动态效果，并将最终画面放进带有壁纸、纯色、渐变、模糊、留白和阴影的样式化边框中。
-
-<p>
-  <img src="./docs/media/feature1.gif" width="450" alt="Recordly cursor and zoom demo video">
+<p align="center">
+  <img src="./docs/media/feature3.png" width="900" alt="Wink 编辑器中的摄像头叠加和多轨时间线" />
 </p>
 
-## 动态摄像头气泡叠加
-你可以把摄像头素材作为气泡叠加层加入画面，使用预设位置或自定义坐标摆放，支持镜像、阴影和圆角调节，也可以让它跟随缩放变化，保证动态镜头里整体视觉更协调。
+### 光标与缩放动效
 
-<p>
-  <img src="./docs/media/feature2.gif" width="450" alt="Recordly webcam overlay demo video">
+<p align="center">
+  <img src="./docs/media/feature1.gif" width="640" alt="Wink 光标与缩放动效演示" />
 </p>
-
-## 为演示设计的时间线编辑
-使用拖拽式时间线工具处理缩放、裁剪、变速区域、注释、额外音频区域以及裁切感知编辑，并将工作保存为 `.recordly` 项目文件，之后随时回来继续编辑。
-
-<p>
-  <img width="450" alt="timeline editor" src="https://github.com/user-attachments/assets/3692bd8f-7b8d-4a93-b696-d17c828487ea" />
-</p>
-
-## 扩展与市场
-
-Recordly 拥有一个社区驱动的扩展系统。任何人都可以构建和发布扩展来为 Recordly 添加新功能，例如光标点击音效、设备边框、浏览器模拟外壳、壁纸、渲染钩子、设置面板等等。
-
-浏览并安装社区扩展：[Recordly 扩展市场](https://marketplace.recordly.dev/extensions)。
-
----
-
-## 全部功能
-
-### 录制
-
-- 录制整个显示器或单个应用窗口
-- 录制完成后直接进入编辑器
-- 录制麦克风音频和系统音频
-- 在支持的平台上使用原生捕获后端
-- 从保存的 `.recordly` 项目文件继续编辑
-- 可在应用中打开已有录像或已有项目文件
-
-### 时间线与编辑
-
-- 拖拽式时间线编辑
-- 裁掉不需要的片段
-- 添加手动缩放区域
-- 根据光标活动生成自动缩放建议
-- 添加加速和减速区域
-- 添加文本、图片和图形注释
-- 在时间线上添加额外音频区域
-- 裁切录制画面
-- 保存并重新打开项目，保留编辑状态
-
-### 光标控制
-
-- 显示或隐藏渲染后的光标叠加层
-- 调整光标大小
-- 光标平滑
-- 光标运动模糊
-- 点击弹跳效果
-- 光标摆动效果
-- 光标循环模式，方便导出更自然的循环片段
-- 使用 macOS 风格的渲染光标素材
 
 ### 摄像头叠加
 
-- 启用或禁用摄像头叠加素材
-- 上传、替换或移除摄像头素材
-- 镜像摄像头画面
-- 调整尺寸
-- 使用预设位置或自定义 X/Y 坐标
-- 调整边距
-- 调整圆角程度
-- 调整阴影强度
-- 可选的缩放联动摄像头缩放效果
+<p align="center">
+  <img src="./docs/media/feature2.gif" width="640" alt="Wink 摄像头叠加演示" />
+</p>
 
-### 画面样式与背景
+### 录制悬浮控制条
 
-- 内置壁纸
-- 运行时自动发现 wallpapers 目录中的壁纸
-- 上传自定义背景图片
-- 纯色背景
-- 渐变背景
-- 画面留白
-- 圆角
-- 背景模糊
-- 投影阴影
-- 最终画面的宽高比预设
+| 空闲状态 | 录制状态 |
+| --- | --- |
+| <img src="./docs/pr/project-browser/idle-hud.png" width="420" alt="Wink 空闲录制悬浮控制条" /> | <img src="./docs/pr/project-browser/recording-hud.png" width="420" alt="Wink 录制中的悬浮控制条" /> |
+
+## 功能
+
+### 录制
+
+- 录制整个显示器或单个应用窗口。
+- 录制结束后直接进入编辑器。
+- 在当前平台后端支持时录制麦克风音频。
+- macOS 使用原生 ScreenCaptureKit 捕获。
+- 支持的 Windows 系统使用 Windows Graphics Capture。
+- Linux Wayland 使用 XDG Desktop Portal 和 PipeWire。
+- 在后台完成素材处理时，编辑器可以继续打开并预览源视频。
+
+### 时间线编辑
+
+- 使用拖放时间线排列视频、音频、摄像头和注释区域。
+- 裁剪不需要的片段并调整播放速度。
+- 添加手动缩放区域，或根据光标活动生成缩放建议。
+- 添加文字、图片和图形注释。
+- 在时间线上添加额外音频区域并裁切源画面。
+- 保存编辑状态并重新打开 `.recordly` 项目文件。
+
+### 光标表现
+
+- 显示或隐藏渲染后的光标叠加层。
+- 调整光标大小、平滑、运动模糊、点击弹跳和摆动效果。
+- 使用光标循环模式制作更自然的循环片段。
+- 在 Linux Wayland 上通过 Portal 光标元数据驱动编辑器叠加层，而不是把系统光标直接写入视频。
+
+### 摄像头叠加
+
+- 添加、替换、镜像和移除摄像头素材。
+- 使用预设位置或自定义坐标。
+- 调整尺寸、边距、圆角和阴影。
+- 可选择让摄像头随缩放区域一起变化。
+
+### 画面样式
+
+- 使用内置壁纸、纯色、渐变和自定义上传背景。
+- 调整留白、宽高比、圆角、模糊和投影。
+- 从应用的 wallpapers 目录发现更多背景资源。
 
 ### 导出
 
-- MP4 导出
-- GIF 导出
-- 导出质量选择
-- GIF 帧率选择
-- GIF 循环开关
-- GIF 尺寸预设
-- 宽高比和输出尺寸控制
-- 在系统文件管理器中定位导出文件
+- 导出 MP4 视频和动态 GIF。
+- 选择输出质量、尺寸、GIF 帧率、GIF 大小和循环方式。
+- 在系统文件管理器中定位导出的文件。
+- 在输出配置支持时使用 WebCodecs 或平台原生导出路径。
 
-### 工作流与易用性
+### 工作流
 
-- 可自定义键盘快捷键
-- 应用内快捷键说明
-- 在编辑器中直接打开反馈和问题链接
-- 编辑器偏好设置持久化
-- 导出后更快恢复预览
+- 自定义键盘快捷键并查看应用内快捷键说明。
+- 打开已有录像和项目文件。
+- 在不同会话之间保留编辑器偏好和项目状态。
+- 从编辑器直接打开反馈和问题链接。
 
----
+## 平台支持
 
-# 截图
+| 平台 | 捕获方式 | 说明 |
+| --- | --- | --- |
+| macOS 14+ | ScreenCaptureKit 辅助程序 | 支持的系统可使用原生屏幕和麦克风捕获路径。 |
+| Windows 10 Build 19041+ | Windows Graphics Capture 辅助程序 | 较旧系统使用 Electron 回退路径，真实光标可能仍会出现在视频中。 |
+| Linux Wayland | XDG Desktop Portal + PipeWire 辅助程序 | Wink 原生捕获视频，并向编辑器提供光标元数据。 |
+| Linux X11 | Electron 桌面捕获 | 不使用 Wayland 辅助程序，改用浏览器捕获路径。 |
 
-<p align="center">
-  <img src="https://i.postimg.cc/8CrQtGJf/Screenshot-2026-04-30-at-5-11-52-pm.png" width="700" alt="Recordly recording interface screenshot">
-</p>
+Linux Wayland 原生路径目前不提供系统音频捕获。需要时麦克风可以使用浏览器回退路径。这个限制与视频和光标流程无关。
 
-<p align="center">
-  <img src="https://i.postimg.cc/pLSMfrTM/Screenshot-2026-04-30-at-5-11-45-pm.png" width="700" alt="Recordly editor screenshot">
-</p>
+## 快速开始
 
-<p align="center">
-  <img src="https://i.postimg.cc/Zn9VY6bg/Screenshot-2026-03-18-at-6-32-59-pm.png" width="700" alt="Recordly timeline screenshot">
-</p>
+### 环境要求
 
----
+- Node.js 和 npm。
+- macOS：Xcode Command Line Tools。
+- Windows：Visual Studio 2022 或包含 C++ 工作负载与 CMake 的 Build Tools。
+- Linux：带有所需桌面捕获后端的桌面会话。
+- Linux Wayland 辅助程序开发环境：Rust、Cargo，以及发行版所需的 GStreamer/PipeWire 运行时依赖。
 
-# 安装
-
-## 下载构建版本
-
-预构建发布版本请见：
-
-https://github.com/webadderallorg/Recordly/releases
-
----
-
-## Arch Linux / Manjaro（yay）
-
-可通过 AUR 安装（[recordly-bin](https://aur.archlinux.org/packages/recordly-bin)）：
+### 从源码运行
 
 ```bash
-yay -S recordly-bin
-```
-
-PKGBUILD、桌面入口、发布同步，以及可选的**本地源码打包**都维护在 **[recordly-aur](https://github.com/firtoz/recordly-aur)** 中，因此这个仓库本身不需要承担 Arch 发布维护工作。关于维护者联系方式和软件包更新方式，请查看该仓库或 AUR 软件包页面。
-
----
-
-## 从源码构建
-
-### 前置依赖
-
-**macOS：** 安装 Xcode Command Line Tools（`xcode-select --install`）。
-
-**Linux（Ubuntu / Debian）：**
-
-```bash
-sudo apt install build-essential cmake libx11-dev libxtst-dev libxrandr-dev libxt-dev
-```
-
-**Windows：** 安装 Visual Studio 2022（或 Build Tools），并勾选 C++ 工作负载和 CMake。
-
-### 步骤
-
-```bash
-git clone https://github.com/webadderallorg/Recordly.git recordly
-cd recordly
+git clone https://github.com/yasakei/wink.git
+cd wink
 npm install
 npm run dev
 ```
 
-如果需要打包构建：
+### 构建应用
 
 ```bash
 npm run build
 ```
 
-也可以使用平台专用构建命令：
-
-- `npm run build:mac`
-- `npm run build:win`
-- `npm run build:linux`
-
----
-
-## macOS：“App cannot be opened”
-
-本地构建的应用可能会被 macOS 隔离。
-
-可以用以下命令移除隔离标记：
+也可以使用平台专用命令：
 
 ```bash
-xattr -rd com.apple.quarantine /Applications/Recordly.app
+npm run build:mac
+npm run build:win
+npm run build:linux
 ```
 
----
+在 Linux 上可以单独构建 Wayland 辅助程序：
 
-# 系统要求
+```bash
+npm run build:wayland-helper
+```
 
-| 平台 | 最低版本 | 说明 |
-|---|---|---|
-| **macOS** | macOS 14.0 (Sonoma) | 使用 ScreenCaptureKit 捕获音频和麦克风所必需。 |
-| **Windows** | Windows 10 20H1（Build 19041，2020 年 5 月） | 原生 Windows Graphics Capture（WGC）辅助程序及最佳光标隐藏行为所必需。 |
-| **Linux** | 任意现代发行版 | 通过 Electron 捕获录制。系统音频通常需要 PipeWire。 |
+### macOS 隔离提示
 
-> [!IMPORTANT]
-> 在 Windows 19041 之前的版本上，录制仍可能通过回退捕获方式工作，但真实系统光标可能仍会出现在视频中。
+macOS Gatekeeper 可能会阻止本地构建的应用。必要时可以对构建出的应用移除隔离标记：
 
----
+```bash
+xattr -rd com.apple.quarantine /Applications/Wink.app
+```
 
-# 使用方法
+## 使用方法
 
-## 录制
+1. 启动 Wink，选择显示器或应用窗口。
+2. 根据当前平台选择可用的麦克风和系统音频选项。
+3. 开始录制，完成后停止录制。
+4. 在编辑器中添加缩放、裁剪、变速、注释、音频和摄像头素材。
+5. 修饰画面并预览光标叠加效果。
+6. 导出为 MP4 或 GIF。
 
-1. 启动 Recordly。
-2. 选择屏幕或窗口。
-3. 选择麦克风和系统音频选项。
-4. 开始录制。
-5. 停止录制后进入编辑器。
+项目文件继续使用 `.recordly` 扩展名，以兼容之前的 Recordly 项目格式。
 
-## 编辑
+## 项目结构
 
-在编辑器中，你可以：
+- `src/`：React 渲染进程、编辑器界面、时间线逻辑和导出代码。
+- `electron/`：Electron 主进程、IPC、窗口和平台集成。
+- `libs/wayland-capture/`：独立的 Linux Wayland 捕获辅助程序。
+- `docs/media/`：README 使用的本地截图和演示。
+- `docs/pr/project-browser/`：本地录制悬浮控制条截图。
+- `services/recordly-share/`：可选的自托管分享服务。
 
-- 添加裁剪、缩放、变速区域和注释
-- 调整光标行为和预览音量
-- 使用壁纸、纯色、渐变、模糊、留白和圆角来美化画面
-- 添加或调整摄像头叠加素材
-- 添加额外音频区域
-- 裁切画面并选择宽高比
+## 致谢与许可证
 
-你可以随时将工作保存为 `.recordly` 项目。
+Wink 是 [Recordly](https://github.com/webadderallorg/Recordly) 的下游重品牌，而 Recordly 最初源自 [OpenScreen](https://github.com/siddharthvaddem/openscreen)。
 
-## 导出
+本项目基于 GNU Affero General Public License v3.0 发布。适用声明和归属要求请参阅 [`LICENSE.md`](LICENSE.md) 与 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
 
-支持以下导出格式：
+## 贡献
 
-- **MP4**，适合常规视频输出
-- **GIF**，适合轻量分享和循环片段
-
-你可以在导出前调整格式相关设置，例如质量、GIF 帧率、GIF 循环方式和输出尺寸。
-
----
-
-# 限制
-
-### 光标捕获
-
-Recordly 会在录制画面上渲染一个经过美化的光标叠加层，但真实系统光标是否能被隐藏仍取决于平台能力。
-
-**macOS**
-- ScreenCaptureKit 可以较干净地排除真实光标。
-
-**Windows**
-- 最佳效果需要 Windows 10 Build 19041+ 和原生捕获辅助程序。
-- 较旧版本会回退到 Electron 捕获，因此真实光标可能仍会显示。
-
-**Linux**
-- Electron 桌面捕获目前不支持隐藏真实光标。
-- 如果同时启用渲染光标叠加，导出中可能会同时看到真实光标和样式化光标。
-
-### 系统音频
-
-系统音频支持因平台而异。
-
-**Windows**
-- 原生 WASAPI 支持
-
-**Linux**
-- 通常需要 PipeWire
-
-**macOS**
-- 需要 macOS 14.0+ 和基于 ScreenCaptureKit 的工作流
-
----
-
-# 工作原理
-
-Recordly 将平台相关的捕获层与基于渲染器的编辑、导出流程结合在一起。
-
-**捕获**
-- Electron 负责录制流程和应用级控制
-- macOS 使用原生 ScreenCaptureKit 辅助程序
-- Windows 在可用时使用原生 Windows Graphics Capture（WGC）辅助程序和原生音频辅助程序
-
-**编辑**
-- 时间线区域定义缩放、裁剪、变速、音频叠加和注释
-- 光标和摄像头样式都保存在编辑器状态中
-
-**渲染**
-- 场景合成由 **PixiJS** 负责
-
-**导出**
-- 预览使用的同一套场景逻辑会被用于导出 MP4 或 GIF
-
-**项目**
-- `.recordly` 文件会保存源媒体路径和编辑器状态，方便后续继续编辑
-
----
-
-# 贡献
-
-欢迎贡献。
-
-特别需要帮助的方向包括：
-
-- Linux 录制与光标行为改进
-- 导出性能与稳定性优化
-- UI 和 UX 打磨
-- 本地化工作
-- 更多编辑工具与工作流优化
-
-请尽量让 Pull Request 保持聚焦，测试录制、编辑、导出流程，并避免无关重构。
-
-请参阅 `CONTRIBUTING.md` 了解具体指南。
-
----
-
-# 社区
-
-问题反馈和功能建议：
-
-https://github.com/webadderallorg/Recordly/issues
-
-欢迎提交 Pull Request。
-
----
-
-# 支持者名单
-
-[![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/webadderall)
-
-- Tadees
-- buildwithfur
-- Tobias
-- Anonymous Supporter
-- Tandava Appadoo
-- Digitalfastmind
-- Roberto Marcelino
-- Rajan RK
-- Francesco
-- Erwan
-- Anonymous supporter
-
----
-
-# 许可证
-
-Recordly 基于 **AGPL 3.0** 发布。
-
----
-
-# 致谢
-
-## 鸣谢
-
-Recordly 最初是从 [OpenScreen](https://github.com/siddharthvaddem/openscreen) 分叉而来，之后已逐步演变为一个不同的项目。
-
-创建者  
-[@webadderall](https://x.com/webadderall)
-
----
+欢迎贡献代码和文档。请保持改动聚焦，并在适用时附上录制、编辑、导出或文档检查结果。项目指南请参阅 [`CONTRIBUTING.md`](CONTRIBUTING.md)。

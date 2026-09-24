@@ -1,6 +1,6 @@
 # In-app announcements
 
-Recordly can show dismissible announcements in the editor as a popup, carousel slide, lightweight live notification, or header banner. Popups can contain images or video; notifications and banners are text-only with optional buttons.
+Wink can show dismissible announcements in the editor as a popup, carousel slide, lightweight live notification, or header banner. Popups can contain images or video; notifications and banners are text-only with optional buttons.
 
 ## Remote announcements
 
@@ -14,8 +14,8 @@ Edit [`announcements.json`](../announcements.json) on the `main` branch to publi
 	"announcements": [
 		{
 			"id": "recordly-1.4-release",
-			"title": "A faster Recordly is here",
-			"body": "Exports are faster and cursor motion is smoother. Thanks for using Recordly!",
+			"title": "A faster Wink is here",
+			"body": "Exports are faster and cursor motion is smoother. Thanks for using Wink!",
 			"presentation": "popup",
 			"audience": "editor",
 			"priority": 10,
@@ -35,11 +35,11 @@ Edit [`announcements.json`](../announcements.json) on the `main` branch to publi
 			"media": {
 				"type": "image",
 				"url": "https://example.com/recordly-1.4-banner.jpg",
-				"alt": "Recordly 1.4 feature preview"
+				"alt": "Wink 1.4 feature preview"
 			},
 			"action": {
 				"label": "See what changed",
-				"url": "https://github.com/webadderallorg/Recordly/releases"
+				"url": "https://github.com/yasakei/wink/releases"
 			}
 		},
 		{

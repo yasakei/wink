@@ -51,8 +51,8 @@
 			"checkingTitle": "Nach Updates suchen...",
 			"downloadingTitle": "Update wird heruntergeladen...",
 			"errorTitle": "Update-Prüfung fehlgeschlagen. Klicken Sie hier, um es erneut zu versuchen.",
-			"upToDateTitle": "Recordly {{version}} ist auf dem neuesten Stand.",
-			"availableTitle": "Recordly {{version}} ist verfügbar.",
+			"upToDateTitle": "Wink {{version}} ist auf dem neuesten Stand.",
+			"availableTitle": "Wink {{version}} ist verfügbar.",
 			"availableGenericTitle": "Ein Update ist verfügbar."
 		}
 	},
@@ -68,10 +68,10 @@
 		"share": "Teilen"
 	},
 	"permissions": {
-		"screenRecordingNeeded": "Recordly benötigt die Berechtigung zur Bildschirmaufzeichnung, bevor Sie beginnen können. Die Systemeinstellungen wurden geöffnet. Schließen Sie Recordly nach der Aktivierung und starten Sie es erneut.",
-		"screenRecordingMissing": "Die Berechtigung für die Bildschirmaufzeichnung fehlt noch. Die Systemeinstellungen wurden erneut geöffnet. Aktivieren Sie die Berechtigung, schließen Sie Recordly anschließend und starten Sie die Anwendung vor der Aufzeichnung erneut.",
-		"accessibilityNeeded": "Recordly benötigt außerdem die Berechtigung für Barrierefreiheit, um die Cursorbewegungen zu verfolgen. Die Systemeinstellungen wurden geöffnet. Schließen Sie Recordly nach der Aktivierung und starten Sie es erneut.",
-		"accessibilityMissing": "Die Berechtigung für die Barrierefreiheit fehlt noch. Die Systemeinstellungen wurden erneut geöffnet. Aktivieren Sie diese, schließen Sie Recordly anschließend und öffnen Sie die App vor der Aufnahme erneut.",
+		"screenRecordingNeeded": "Wink benötigt die Berechtigung zur Bildschirmaufzeichnung, bevor Sie beginnen können. Die Systemeinstellungen wurden geöffnet. Schließen Sie Wink nach der Aktivierung und starten Sie es erneut.",
+		"screenRecordingMissing": "Die Berechtigung für die Bildschirmaufzeichnung fehlt noch. Die Systemeinstellungen wurden erneut geöffnet. Aktivieren Sie die Berechtigung, schließen Sie Wink anschließend und starten Sie die Anwendung vor der Aufzeichnung erneut.",
+		"accessibilityNeeded": "Wink benötigt außerdem die Berechtigung für Barrierefreiheit, um die Cursorbewegungen zu verfolgen. Die Systemeinstellungen wurden geöffnet. Schließen Sie Wink nach der Aktivierung und starten Sie es erneut.",
+		"accessibilityMissing": "Die Berechtigung für die Barrierefreiheit fehlt noch. Die Systemeinstellungen wurden erneut geöffnet. Aktivieren Sie diese, schließen Sie Wink anschließend und öffnen Sie die App vor der Aufnahme erneut.",
 		"selectSource": "Bitte wählen Sie eine Quelle für die Aufnahme aus",
 		"systemAudioUnavailable": "Für diese Quelle ist kein Systemton verfügbar. Die Aufnahme wird ohne Systemton fortgesetzt.",
 		"microphoneDenied": "Der Zugriff auf das Mikrofon wurde verweigert. Die Aufzeichnung wird ohne Mikrofonton fortgesetzt.",
@@ -81,7 +81,7 @@
 	"updateToast": {
 		"availableTitle": "Update verfügbar",
 		"experimentalAvailableTitle": "Experimentelles Update verfügbar",
-		"experimentalDescription": "Sie haben experimentelle Updates aktiviert und können daher das neueste Update von Recordly testen, bevor es allgemein verfügbar ist.",
+		"experimentalDescription": "Sie haben experimentelle Updates aktiviert und können daher das neueste Update von Wink testen, bevor es allgemein verfügbar ist.",
 		"downloadingTitle": "Update wird heruntergeladen",
 		"readyTitle": "Bereit zum Neustart",
 		"checkErrorTitle": "Updates konnten nicht geprüft werden",

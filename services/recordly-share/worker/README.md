@@ -1,6 +1,6 @@
-# Recordly Share
+# Wink Share service
 
-Recordly Share is the self-hosted video publishing and review service used by Recordly. It runs as a Cloudflare Worker with R2 video storage, D1 metadata, range streaming, a responsive viewer, timestamped comments, reactions, passwords, expiration, and a private recording library.
+`Recordly Share` is the self-hosted video publishing and review service used by Wink. The service directory and deployment resources retain the `recordly-share` name for compatibility. It runs as a Cloudflare Worker with R2 video storage, D1 metadata, range streaming, a responsive viewer, timestamped comments, reactions, passwords, expiration, and a private recording library.
 
 ## Local development
 
@@ -12,7 +12,7 @@ npm --prefix web run build
 npm run dev
 ```
 
-Set `OWNER_USER_ID` to the deployment owner’s Supabase user ID. Only that user may administer this single-owner library. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in `.dev.vars` to the same public project configuration used by the desktop app. Recordly sends the signed-in user's access token when it publishes to:
+Set `OWNER_USER_ID` to the deployment owner’s Supabase user ID. Only that user may administer this single-owner library. Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in `.dev.vars` to the same public project configuration used by the Wink desktop app. Wink sends the signed-in user's access token when it publishes to:
 
 - Endpoint: `http://localhost:8787/api/upload`
 
@@ -35,7 +35,7 @@ Set `SUPABASE_URL` as a Worker variable. The ID-less configuration provisions `r
 
 ## Attribution
 
-This service is adapted from an MIT-licensed open-source project. The required original copyright and permission notice is preserved in [`../LICENSE`](../LICENSE) and Recordly's root `THIRD_PARTY_NOTICES.md`. Product-facing pages use Recordly branding; legal attribution must remain with distributed copies.
+This service is adapted from an MIT-licensed open-source project. The required original copyright and permission notice is preserved in [`../LICENSE`](../LICENSE) and the repository root `THIRD_PARTY_NOTICES.md`. The directory name remains `recordly-share`; product-facing pages use Wink branding.
 
 ## Worker source layout
 

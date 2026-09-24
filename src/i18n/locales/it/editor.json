@@ -1,6 +1,6 @@
 {
 	"cloud": {
-		"signInRequired": "Accedi a Recordly prima di creare un link condiviso.",
+		"signInRequired": "Accedi a Wink prima di creare un link condiviso.",
 		"prepareFailed": "Impossibile preparare il montaggio attuale per la condivisione.",
 		"uploadFailed": "Caricamento sul cloud non riuscito.",
 		"linkCreated": "Link di condivisione creato",
@@ -17,15 +17,15 @@
 		"publish": "Pubblica e crea link",
 		"createLinkTitle": "Crea un link condivisibile",
 		"notesPlaceholder": "Aggiungi contesto, istruzioni o un breve riepilogo per gli spettatori…",
-		"description": "Pubblica il montaggio attuale su una pagina Recordly per visualizzarlo e commentarlo. Non è necessario scaricarlo. I video vengono preparati fino a 1080p.",
+		"description": "Pubblica il montaggio attuale su una pagina Wink per visualizzarlo e commentarlo. Non è necessario scaricarlo. I video vengono preparati fino a 1080p.",
 		"uploading": "Caricamento… {progress}%",
-		"googleUnavailable": "L’accesso con Google non è ancora abilitato. Usa l’e-mail o chiedi all’amministratore di Recordly di collegare Google.",
-		"xUnavailable": "L’accesso con X non è ancora abilitato. Usa l’e-mail o chiedi all’amministratore di Recordly di collegare X.",
+		"googleUnavailable": "L’accesso con Google non è ancora abilitato. Usa l’e-mail o chiedi all’amministratore di Wink di collegare Google.",
+		"xUnavailable": "L’accesso con X non è ancora abilitato. Usa l’e-mail o chiedi all’amministratore di Wink di collegare X.",
 		"providerUnavailable": "Questo metodo di accesso non è ancora abilitato. Usa l’e-mail.",
 		"enterEmail": "Inserisci prima il tuo indirizzo e-mail.",
 		"resetSent": "E-mail per reimpostare la password inviata.",
-		"accountHeading": "Il tuo account Recordly",
-		"signInHeading": "Accedi a Recordly",
+		"accountHeading": "Il tuo account Wink",
+		"signInHeading": "Accedi a Wink",
 		"signInShareDescription": "Accedi per pubblicare questo video e gestirne il link condiviso.",
 		"signInDescription": "Accedi alle tue registrazioni e ai link condivisi.",
 		"signingOut": "Disconnessione…",
@@ -172,7 +172,7 @@
 	"account": { "title": "Account", "comingSoon": "Account in arrivo" },
 	"nativeCaptureUnavailable": {
 		"title": "Niente è rotto, ma non sarà possibile renderizzare un overlay del cursore animato.",
-		"description": "Il tuo dispositivo non supporta la cattura nativa. Le cause possono essere varie e non ancora identificate. Recordly funziona comunque, ma non è possibile applicare lo smoothing del cursore.",
+		"description": "Il tuo dispositivo non supporta la cattura nativa. Le cause possono essere varie e non ancora identificate. Wink funziona comunque, ma non è possibile applicare lo smoothing del cursore.",
 		"confirm": "Ok"
 	},
 	"exportStatus": {

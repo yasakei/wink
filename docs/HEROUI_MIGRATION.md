@@ -14,7 +14,7 @@ cd ../recordly-heroui
 npm run dev
 ```
 
-A fresh checkout needs `npm install` first, including Recordly's normal native
+A fresh checkout needs `npm install` first, including Wink's normal native
 helper installation. The dependency lockfile belongs to this branch.
 
 To go back, close the development app and run `npm run dev` from the original
@@ -38,7 +38,7 @@ live behind a per-section switch; changing views preserves project values.
 Background types and other exclusive choices use TagGroup. The header follows
 native fullscreen state and keeps project titles centered at narrow widths. Floating layers keep one
 surface instead of nesting cards and shadows. Timeline blocks retain the original
-Recordly palette in both themes. Inspector controls use compact 12–13px text and
+Wink palette in both themes. Inspector controls use compact 12–13px text and
 32–36px controls, with 14px section titles. Image and video wallpaper grids share
 a plus tile for importing and a small remove control on custom tiles, revealed
 on hover or keyboard focus. The background gallery slides left/right with tab order.
@@ -57,7 +57,7 @@ selection ignores pointer jitter up to 4px, including clicks on trim handles,
 so selecting a clip cannot introduce a leading gap. Project and preset names truncate inside their rows.
 The recorder keeps its compact desktop layout.
 
-The adapters in `src/components/ui` translate existing Recordly state/callback
+The adapters in `src/components/ui` translate existing Wink state/callback
 props to HeroUI APIs. The timeline geometry, crop handles, video canvas, caption
 canvas editor, waveform, and native file inputs remain application-specific;
 HeroUI does not replace those editing engines. Recording/export/project logic

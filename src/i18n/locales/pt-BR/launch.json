@@ -51,8 +51,8 @@
 			"checkingTitle": "Verificando atualizações...",
 			"downloadingTitle": "Baixando atualização...",
 			"errorTitle": "Falha ao verificar atualizações. Clique para tentar novamente.",
-			"upToDateTitle": "Recordly {{version}} está atualizado.",
-			"availableTitle": "Recordly {{version}} está disponível.",
+			"upToDateTitle": "Wink {{version}} está atualizado.",
+			"availableTitle": "Wink {{version}} está disponível.",
 			"availableGenericTitle": "Há uma atualização disponível."
 		}
 	},
@@ -68,10 +68,10 @@
 		"share": "Compartilhar"
 	},
 	"permissions": {
-		"screenRecordingNeeded": "O Recordly precisa da permissão de Gravação de Tela antes de iniciar. Ajustes do Sistema foram abertos. Depois de ativar, feche e reabra o Recordly.",
-		"screenRecordingMissing": "A permissão de Gravação de Tela ainda está ausente. Ajustes do Sistema foram abertos novamente. Ative e depois feche e reabra o Recordly antes de gravar.",
-		"accessibilityNeeded": "O Recordly também precisa da permissão de Acessibilidade para rastrear o cursor. Ajustes do Sistema foram abertos. Depois de ativar, feche e reabra o Recordly.",
-		"accessibilityMissing": "A permissão de Acessibilidade ainda está ausente. Ajustes do Sistema foram abertos novamente. Ative e depois feche e reabra o Recordly antes de gravar.",
+		"screenRecordingNeeded": "O Wink precisa da permissão de Gravação de Tela antes de iniciar. Ajustes do Sistema foram abertos. Depois de ativar, feche e reabra o Wink.",
+		"screenRecordingMissing": "A permissão de Gravação de Tela ainda está ausente. Ajustes do Sistema foram abertos novamente. Ative e depois feche e reabra o Wink antes de gravar.",
+		"accessibilityNeeded": "O Wink também precisa da permissão de Acessibilidade para rastrear o cursor. Ajustes do Sistema foram abertos. Depois de ativar, feche e reabra o Wink.",
+		"accessibilityMissing": "A permissão de Acessibilidade ainda está ausente. Ajustes do Sistema foram abertos novamente. Ative e depois feche e reabra o Wink antes de gravar.",
 		"selectSource": "Selecione uma fonte para gravar",
 		"systemAudioUnavailable": "O áudio do sistema não está disponível para esta fonte. A gravação continuará sem áudio do sistema.",
 		"microphoneDenied": "O acesso ao microfone foi negado. A gravação continuará sem áudio do microfone.",
@@ -81,7 +81,7 @@
 	"updateToast": {
 		"availableTitle": "Atualização disponível",
 		"experimentalAvailableTitle": "Atualização experimental disponível",
-		"experimentalDescription": "Você ativou as atualizações experimentais, então pode escolher testar a atualização mais recente do Recordly antes que ela fique amplamente disponível.",
+		"experimentalDescription": "Você ativou as atualizações experimentais, então pode escolher testar a atualização mais recente do Wink antes que ela fique amplamente disponível.",
 		"downloadingTitle": "Baixando sua atualização",
 		"readyTitle": "Pronto para reiniciar",
 		"checkErrorTitle": "Não foi possível verificar atualizações",

@@ -1,6 +1,6 @@
 {
 	"cloud": {
-		"signInRequired": "Meld je aan bij Recordly voordat je een deellink maakt.",
+		"signInRequired": "Meld je aan bij Wink voordat je een deellink maakt.",
 		"prepareFailed": "De huidige montage kon niet worden voorbereid om te delen.",
 		"uploadFailed": "Uploaden naar de cloud mislukt.",
 		"linkCreated": "Deellink gemaakt",
@@ -17,15 +17,15 @@
 		"publish": "Publiceren en link maken",
 		"createLinkTitle": "Een deellink maken",
 		"notesPlaceholder": "Voeg context, instructies of een korte samenvatting voor kijkers toe…",
-		"description": "Publiceer de huidige montage op een Recordly-pagina om te bekijken en feedback te geven. Downloaden is niet nodig. Video’s worden voorbereid tot 1080p.",
+		"description": "Publiceer de huidige montage op een Wink-pagina om te bekijken en feedback te geven. Downloaden is niet nodig. Video’s worden voorbereid tot 1080p.",
 		"uploading": "Uploaden… {progress}%",
-		"googleUnavailable": "Aanmelden met Google is nog niet ingeschakeld. Gebruik e-mail of vraag je Recordly-beheerder om Google te koppelen.",
-		"xUnavailable": "Aanmelden met X is nog niet ingeschakeld. Gebruik e-mail of vraag je Recordly-beheerder om X te koppelen.",
+		"googleUnavailable": "Aanmelden met Google is nog niet ingeschakeld. Gebruik e-mail of vraag je Wink-beheerder om Google te koppelen.",
+		"xUnavailable": "Aanmelden met X is nog niet ingeschakeld. Gebruik e-mail of vraag je Wink-beheerder om X te koppelen.",
 		"providerUnavailable": "Deze aanmeldmethode is nog niet ingeschakeld. Gebruik voorlopig e-mail.",
 		"enterEmail": "Voer eerst je e-mailadres in.",
 		"resetSent": "E-mail om je wachtwoord te herstellen verzonden.",
-		"accountHeading": "Je Recordly-account",
-		"signInHeading": "Aanmelden bij Recordly",
+		"accountHeading": "Je Wink-account",
+		"signInHeading": "Aanmelden bij Wink",
 		"signInShareDescription": "Meld je aan om deze video te publiceren en de deellink te beheren.",
 		"signInDescription": "Bekijk je opnamen en gedeelde links.",
 		"signingOut": "Afmelden…",
@@ -173,7 +173,7 @@
 	"account": { "title": "Account", "comingSoon": "Account binnenkort beschikbaar" },
 	"nativeCaptureUnavailable": {
 		"title": "Er is niets kapot, maar we kunnen geen geanimeerde cursor-overlay renderen.",
-		"description": "Je apparaat ondersteunt geen native capture. Dit kan verschillende oorzaken hebben die we nog niet hebben achterhaald. Recordly blijft werken, maar cursor smoothing is dan niet mogelijk.",
+		"description": "Je apparaat ondersteunt geen native capture. Dit kan verschillende oorzaken hebben die we nog niet hebben achterhaald. Wink blijft werken, maar cursor smoothing is dan niet mogelijk.",
 		"confirm": "Oké"
 	},
 	"exportStatus": {

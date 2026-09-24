@@ -51,8 +51,8 @@
 			"checkingTitle": "Verifica aggiornamenti in corso...",
 			"downloadingTitle": "Download dell'aggiornamento in corso...",
 			"errorTitle": "Verifica aggiornamenti non riuscita. Clicca per riprovare.",
-			"upToDateTitle": "Recordly {{version}} è aggiornato.",
-			"availableTitle": "Recordly {{version}} è disponibile.",
+			"upToDateTitle": "Wink {{version}} è aggiornato.",
+			"availableTitle": "Wink {{version}} è disponibile.",
 			"availableGenericTitle": "È disponibile un aggiornamento."
 		}
 	},
@@ -68,10 +68,10 @@
 		"share": "Condividi"
 	},
 	"permissions": {
-		"screenRecordingNeeded": "Recordly necessita del permesso di Registrazione schermo prima di iniziare. Sono state aperte le Impostazioni di sistema. Dopo averlo abilitato, esci e riapri Recordly.",
-		"screenRecordingMissing": "Manca ancora il permesso di Registrazione schermo. Le Impostazioni di sistema sono state riaperte. Abilitalo, poi esci e riapri Recordly prima di registrare.",
-		"accessibilityNeeded": "Recordly necessita anche del permesso di Accessibilità per il tracciamento del cursore. Sono state aperte le Impostazioni di sistema. Dopo averlo abilitato, esci e riapri Recordly.",
-		"accessibilityMissing": "Manca ancora il permesso di Accessibilità. Le Impostazioni di sistema sono state riaperte. Abilitalo, poi esci e riapri Recordly prima di registrare.",
+		"screenRecordingNeeded": "Wink necessita del permesso di Registrazione schermo prima di iniziare. Sono state aperte le Impostazioni di sistema. Dopo averlo abilitato, esci e riapri Wink.",
+		"screenRecordingMissing": "Manca ancora il permesso di Registrazione schermo. Le Impostazioni di sistema sono state riaperte. Abilitalo, poi esci e riapri Wink prima di registrare.",
+		"accessibilityNeeded": "Wink necessita anche del permesso di Accessibilità per il tracciamento del cursore. Sono state aperte le Impostazioni di sistema. Dopo averlo abilitato, esci e riapri Wink.",
+		"accessibilityMissing": "Manca ancora il permesso di Accessibilità. Le Impostazioni di sistema sono state riaperte. Abilitalo, poi esci e riapri Wink prima di registrare.",
 		"selectSource": "Seleziona una sorgente da registrare",
 		"systemAudioUnavailable": "L'audio di sistema non è disponibile per questa sorgente. La registrazione continuerà senza audio di sistema.",
 		"microphoneDenied": "L'accesso al microfono è stato negato. La registrazione continuerà senza audio del microfono.",
@@ -81,7 +81,7 @@
 	"updateToast": {
 		"availableTitle": "Aggiornamento disponibile",
 		"experimentalAvailableTitle": "Aggiornamento sperimentale disponibile",
-		"experimentalDescription": "Hai attivato gli aggiornamenti sperimentali, quindi puoi scegliere di provare l'ultimo aggiornamento di Recordly prima che sia disponibile per tutti.",
+		"experimentalDescription": "Hai attivato gli aggiornamenti sperimentali, quindi puoi scegliere di provare l'ultimo aggiornamento di Wink prima che sia disponibile per tutti.",
 		"downloadingTitle": "Download dell'aggiornamento",
 		"readyTitle": "Pronto per il riavvio",
 		"checkErrorTitle": "Impossibile verificare gli aggiornamenti",

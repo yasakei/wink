@@ -83,7 +83,7 @@
 		"connectedZoomDuration": "Duración entre zooms conectados",
 		"connectedZoomEasing": "Curva del paneo conectado",
 		"zoomEasingOptions": {
-			"recordly": "Recordly",
+			"recordly": "Wink",
 			"glide": "Glide",
 			"smooth": "Suave",
 			"snappy": "Rápida",
@@ -254,7 +254,7 @@
 		"deleteRegion": "Eliminar audio"
 	},
 	"updates": {
-		"experimentalDescription": "Has activado las actualizaciones experimentales, así que puedes probar la actualización más reciente de Recordly antes de que esté disponible para todos.",
+		"experimentalDescription": "Has activado las actualizaciones experimentales, así que puedes probar la actualización más reciente de Wink antes de que esté disponible para todos.",
 		"title": "Actualizaciones",
 		"experimental": "Actualizaciones experimentales",
 		"saveFailed": "No se pudo cambiar el canal de actualización."

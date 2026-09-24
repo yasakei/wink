@@ -83,7 +83,7 @@
 		"connectedZoomDuration": "连接缩放时长",
 		"connectedZoomEasing": "连接平移曲线",
 		"zoomEasingOptions": {
-			"recordly": "Recordly",
+			"recordly": "Wink",
 			"glide": "滑行",
 			"smooth": "平滑",
 			"snappy": "利落",
@@ -254,7 +254,7 @@
 		"deleteRegion": "删除音频"
 	},
 	"updates": {
-		"experimentalDescription": "你已选择接收实验性更新，因此可以在 Recordly 最新更新广泛发布之前选择先行测试。",
+		"experimentalDescription": "你已选择接收实验性更新，因此可以在 Wink 最新更新广泛发布之前选择先行测试。",
 		"title": "更新",
 		"experimental": "实验性更新",
 		"saveFailed": "无法更改更新频道。"

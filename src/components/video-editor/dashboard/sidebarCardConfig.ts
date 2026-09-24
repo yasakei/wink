@@ -18,7 +18,7 @@ export const sidebarCardConfig: { enabled: boolean; cards: SidebarCard[] } = {
 			image: "announcements/placeholder-1.svg",
 			imageAlt: "Placeholder banner",
 			heading: "Coming soon",
-			subheading: "News from Recordly",
+			subheading: "News from Wink",
 			paragraph: "A place for updates, tips, and announcements.",
 		},
 	],

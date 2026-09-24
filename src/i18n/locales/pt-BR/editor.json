@@ -1,6 +1,6 @@
 {
 	"cloud": {
-		"signInRequired": "Entre no Recordly antes de criar um link compartilhado.",
+		"signInRequired": "Entre no Wink antes de criar um link compartilhado.",
 		"prepareFailed": "Não foi possível preparar a edição atual para compartilhar.",
 		"uploadFailed": "Falha no envio para a nuvem.",
 		"linkCreated": "Link de compartilhamento criado",
@@ -17,15 +17,15 @@
 		"publish": "Publicar e criar link",
 		"createLinkTitle": "Criar um link compartilhável",
 		"notesPlaceholder": "Adicione contexto, instruções ou um breve resumo para os espectadores…",
-		"description": "Publique a edição atual em uma página do Recordly para assistir e comentar. Não é necessário baixar. Os vídeos são preparados em até 1080p.",
+		"description": "Publique a edição atual em uma página do Wink para assistir e comentar. Não é necessário baixar. Os vídeos são preparados em até 1080p.",
 		"uploading": "Enviando… {progress}%",
-		"googleUnavailable": "O login com Google ainda não está habilitado. Use e-mail ou peça ao administrador do Recordly para conectar o Google.",
-		"xUnavailable": "O login com X ainda não está habilitado. Use e-mail ou peça ao administrador do Recordly para conectar o X.",
+		"googleUnavailable": "O login com Google ainda não está habilitado. Use e-mail ou peça ao administrador do Wink para conectar o Google.",
+		"xUnavailable": "O login com X ainda não está habilitado. Use e-mail ou peça ao administrador do Wink para conectar o X.",
 		"providerUnavailable": "Este método de login ainda não está habilitado. Use e-mail por enquanto.",
 		"enterEmail": "Digite seu endereço de e-mail primeiro.",
 		"resetSent": "E-mail de redefinição de senha enviado.",
-		"accountHeading": "Sua conta Recordly",
-		"signInHeading": "Entrar no Recordly",
+		"accountHeading": "Sua conta Wink",
+		"signInHeading": "Entrar no Wink",
 		"signInShareDescription": "Entre para publicar este vídeo e gerenciar seu link compartilhado.",
 		"signInDescription": "Acesse suas gravações e links compartilhados.",
 		"signingOut": "Saindo…",
@@ -172,7 +172,7 @@
 	"account": { "title": "Conta", "comingSoon": "Conta em breve" },
 	"nativeCaptureUnavailable": {
 		"title": "Nada está quebrado, mas não poderemos renderizar uma sobreposição animada do cursor.",
-		"description": "Seu dispositivo não oferece suporte à captura nativa. Isso pode acontecer por vários motivos que ainda não identificamos. O Recordly continuará funcionando, mas a suavização do cursor ficará indisponível.",
+		"description": "Seu dispositivo não oferece suporte à captura nativa. Isso pode acontecer por vários motivos que ainda não identificamos. O Wink continuará funcionando, mas a suavização do cursor ficará indisponível.",
 		"confirm": "Entendi"
 	},
 	"exportStatus": {
