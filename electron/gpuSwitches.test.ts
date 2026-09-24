@@ -55,6 +55,7 @@ describe("getGpuSwitches", () => {
 		).toEqual({
 			useGl: undefined,
 			disableFeatures: ["VaapiVideoDecoder", "VaapiVideoEncoder"],
+			disableGpuCompositing: true,
 		});
 	});
 

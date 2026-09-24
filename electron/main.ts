@@ -1,4 +1,3 @@
-import { clearRecordingTrashUndo } from "./ipc/recording/library";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -27,6 +26,8 @@ import {
 	killWindowsCaptureProcess,
 	registerIpcHandlers,
 } from "./ipc/handlers";
+import { clearRecordingTrashUndo } from "./ipc/recording/library";
+import { getLinuxWindowSystem, LINUX_PORTAL_SCREEN_SOURCE_ID } from "./ipc/register/sourceMapping";
 import { ensureMediaServer } from "./mediaServer";
 import { hardenWebContentsNavigation, shouldHardenWebContentsType } from "./navigationPolicy";
 import { shouldGrantDisplayCapture, shouldGrantMediaPermission } from "./permissionPolicy";
@@ -48,6 +49,7 @@ import {
 	skipAvailableUpdateVersion,
 } from "./updater";
 import {
+	beginHudCaptureProtection,
 	createEditorWindow,
 	createHudOverlayWindow,
 	createSourceSelectorWindow,
@@ -55,7 +57,6 @@ import {
 	getUpdateToastWindow,
 	hideUpdateToastWindow,
 	isHudOverlayMousePassthroughSupported,
-	beginHudCaptureProtection,
 	reassertHudOverlayMousePassthrough as reassertHudOverlayMouseState,
 	setHudOverlayRecordingActive,
 	showUpdateToastWindow,
@@ -89,7 +90,10 @@ app.on("web-contents-created", (_event, contents) => {
 });
 
 function configureGpuAccelerationSwitches() {
-	const { useAngle, useGl, disableFeatures } = getGpuSwitches(process.platform, process.env);
+	const { useAngle, useGl, disableFeatures, disableGpuCompositing } = getGpuSwitches(
+		process.platform,
+		process.env,
+	);
 	if (useAngle) {
 		app.commandLine.appendSwitch("use-angle", useAngle);
 	}
@@ -98,6 +102,9 @@ function configureGpuAccelerationSwitches() {
 	}
 	if (disableFeatures && disableFeatures.length > 0) {
 		app.commandLine.appendSwitch("disable-features", disableFeatures.join(","));
+	}
+	if (disableGpuCompositing) {
+		app.commandLine.appendSwitch("disable-gpu-compositing");
 	}
 }
 
@@ -169,6 +176,63 @@ function isHudWebContents(webContents: Electron.WebContents | null): boolean {
 
 	const hudWindow = getHudOverlayWindow();
 	return Boolean(hudWindow && hudWindow.webContents === webContents);
+}
+
+function registerDisplayMediaRequestHandler() {
+	session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
+		try {
+			const frame = request.frame;
+			const isLiveFrame = Boolean(frame && !frame.isDestroyed());
+			const requestingWebContents =
+				isLiveFrame && frame ? electronWebContents.fromFrame(frame) : undefined;
+			const isHudMainFrame = Boolean(
+				isLiveFrame &&
+					requestingWebContents &&
+					isHudWebContents(requestingWebContents) &&
+					frame === requestingWebContents.mainFrame,
+			);
+
+			if (
+				!shouldGrantDisplayCapture(
+					{
+						isTrustedCaptureWindow: isHudMainFrame,
+						isMainFrame: Boolean(isLiveFrame && frame?.parent === null),
+						currentDocumentUrl: isLiveFrame ? (frame?.url ?? "") : "",
+						securityOrigin: request.securityOrigin,
+						videoRequested: request.videoRequested,
+					},
+					getTrustedCaptureDocumentBaseUrls(),
+				)
+			) {
+				callback({});
+				return;
+			}
+
+			beginHudCaptureProtection();
+			const sourceId = getSelectedSourceId();
+			const isLinuxPortalSentinel =
+				process.platform === "linux" &&
+				(sourceId === LINUX_PORTAL_SCREEN_SOURCE_ID || !sourceId);
+			const sources = await desktopCapturer.getSources({
+				types: ["screen", "window"],
+				thumbnailSize: { width: 0, height: 0 },
+				fetchWindowIcons: false,
+			});
+			const source = isLinuxPortalSentinel
+				? sources[0]
+				: sourceId
+					? (sources.find((candidate) => candidate.id === sourceId) ?? sources[0])
+					: sources[0];
+			if (source) {
+				callback({ video: { id: source.id, name: source.name } });
+			} else {
+				callback({});
+			}
+		} catch (error) {
+			console.error("setDisplayMediaRequestHandler error:", error);
+			callback({});
+		}
+	});
 }
 
 // Window references
@@ -712,7 +776,7 @@ ipcMain.handle("check-for-app-updates", async () => {
 function updateTrayMenu(recording: boolean = false) {
 	if (!tray) return;
 	const trayIcon = recording ? getRecordingTrayIcon() : getDefaultTrayIcon();
-	const trayToolTip = recording ? `Recording: ${selectedSourceName}` : "Recordly";
+	const trayToolTip = recording ? `Recording: ${selectedSourceName}` : "Wink";
 	const menuTemplate = recording
 		? [
 				{
@@ -919,14 +983,27 @@ app.whenReady().then(async () => {
 
 	session.defaultSession.setPermissionCheckHandler(
 		(webContents, permission, requestingOrigin, details) => {
+			const trustedCaptureWindow = isHudWebContents(webContents);
+			const currentDocumentUrl = webContents?.getURL() ?? "";
+			const securityOrigin = details.securityOrigin ?? requestingOrigin;
+			if ((permission as string) === "display-capture") {
+				return shouldGrantDisplayCapture(
+					{
+						isTrustedCaptureWindow: trustedCaptureWindow,
+						isMainFrame: details.isMainFrame,
+						currentDocumentUrl,
+						securityOrigin,
+						videoRequested: true,
+					},
+					getTrustedCaptureDocumentBaseUrls(),
+				);
+			}
 			return shouldGrantMediaPermission(
 				{
 					permission,
-					isTrustedCaptureWindow: isHudWebContents(webContents),
+					isTrustedCaptureWindow: trustedCaptureWindow,
 					isMainFrame: details.isMainFrame,
-					currentDocumentUrl: webContents?.getURL() ?? "",
-					// Electron 39 may supply the last committed document URL, including its
-					// query, in the requestingOrigin argument for media checks.
+					currentDocumentUrl,
 					requestingUrl: details.requestingUrl ?? requestingOrigin,
 					securityOrigins:
 						details.securityOrigin === undefined ? [] : [details.securityOrigin],
@@ -938,15 +1015,32 @@ app.whenReady().then(async () => {
 
 	session.defaultSession.setPermissionRequestHandler(
 		(webContents, permission, callback, details) => {
-			const securityOrigin = "securityOrigin" in details ? details.securityOrigin : undefined;
-
+			const trustedCaptureWindow = isHudWebContents(webContents);
+			const currentDocumentUrl = webContents.getURL();
+			const securityOrigin =
+				"securityOrigin" in details ? details.securityOrigin : details.requestingUrl;
+			if ((permission as string) === "display-capture") {
+				callback(
+					shouldGrantDisplayCapture(
+						{
+							isTrustedCaptureWindow: trustedCaptureWindow,
+							isMainFrame: details.isMainFrame,
+							currentDocumentUrl,
+							securityOrigin: securityOrigin ?? "",
+							videoRequested: true,
+						},
+						getTrustedCaptureDocumentBaseUrls(),
+					),
+				);
+				return;
+			}
 			callback(
 				shouldGrantMediaPermission(
 					{
 						permission,
-						isTrustedCaptureWindow: isHudWebContents(webContents),
+						isTrustedCaptureWindow: trustedCaptureWindow,
 						isMainFrame: details.isMainFrame,
-						currentDocumentUrl: webContents.getURL(),
+						currentDocumentUrl,
 						requestingUrl: details.requestingUrl,
 						securityOrigins: securityOrigin === undefined ? [] : [securityOrigin],
 					},
@@ -977,6 +1071,10 @@ app.whenReady().then(async () => {
 			);
 		}
 	}
+
+	ipcMain.handle("get-linux-window-system", () =>
+		getLinuxWindowSystem(process.env, process.argv, process.platform),
+	);
 
 	ipcMain.on("hud-overlay-close", () => {
 		const hud = getHudOverlayWindow();
@@ -1040,6 +1138,8 @@ app.whenReady().then(async () => {
 		},
 	);
 
+	registerDisplayMediaRequestHandler();
+
 	if (IS_SMOKE_EXPORT || process.env.RECORDLY_DEV_OPEN_RECORDING_INPUT) {
 		await logSmokeExportGpuDiagnostics();
 		if (IS_SMOKE_EXPORT) {
@@ -1069,83 +1169,6 @@ app.whenReady().then(async () => {
 			void previewNativeUpdateDialog(getUpdateDialogWindow);
 		}, 750);
 	}
-
-	// Register the display media handler so that renderer's getDisplayMedia()
-	// calls land on the pre-selected source without showing a system picker.
-	//
-	// IMPORTANT: The callback must receive a plain { id, name } Video object.
-	// Passing the full DesktopCapturerSource (with thumbnail, appIcon, etc.)
-	// via an unsafe cast breaks Electron's internal cursor-constraint
-	// propagation and causes cursor: 'never' from the renderer to be silently
-	// ignored by the native capture pipeline.
-	session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
-		try {
-			const frame = request.frame;
-			const isLiveFrame = Boolean(frame && !frame.isDestroyed());
-			const requestingWebContents =
-				isLiveFrame && frame ? electronWebContents.fromFrame(frame) : undefined;
-			const isHudMainFrame = Boolean(
-				isLiveFrame &&
-					requestingWebContents &&
-					isHudWebContents(requestingWebContents) &&
-					frame === requestingWebContents.mainFrame,
-			);
-
-			if (
-				!shouldGrantDisplayCapture(
-					{
-						isTrustedCaptureWindow: isHudMainFrame,
-						isMainFrame: Boolean(isLiveFrame && frame?.parent === null),
-						currentDocumentUrl: isLiveFrame ? (frame?.url ?? "") : "",
-						securityOrigin: request.securityOrigin,
-						videoRequested: request.videoRequested,
-					},
-					getTrustedCaptureDocumentBaseUrls(),
-				)
-			) {
-				callback({});
-				return;
-			}
-
-			// Browser and Linux portal capture starts as soon as this callback
-			// resolves, before recording-state-changed is emitted.
-			beginHudCaptureProtection();
-
-			const sourceId = getSelectedSourceId();
-			// On Linux/Wayland, calling desktopCapturer.getSources() itself
-			// invokes the xdg-desktop-portal picker. If we then return one of
-			// those sources, Chromium triggers a SECOND portal because the
-			// pre-enumerated source IDs are stale on Wayland. To collapse this
-			// into a single portal invocation, when the Linux portal sentinel
-			// is set we skip getSources entirely and hand back a synthetic
-			// source id; Chromium then opens the portal once to actually
-			// resolve the capture.
-			// Default to the sentinel on Linux when no source has been
-			// pre-selected (e.g. fresh session where the renderer skipped the
-			// source picker entirely). This avoids calling getSources() which
-			// would itself trigger an extra portal dialog.
-			const isLinuxPortalSentinel =
-				process.platform === "linux" && (sourceId === "screen:linux-portal" || !sourceId);
-			if (isLinuxPortalSentinel) {
-				callback({ video: { id: "screen:0:0", name: "Entire screen" } });
-				return;
-			}
-			const sources = await desktopCapturer.getSources({ types: ["screen", "window"] });
-			const source = sourceId
-				? (sources.find((s) => s.id === sourceId) ?? sources[0])
-				: sources[0];
-			if (source) {
-				callback({
-					video: { id: source.id, name: source.name },
-				});
-			} else {
-				callback({});
-			}
-		} catch (error) {
-			console.error("setDisplayMediaRequestHandler error:", error);
-			callback({});
-		}
-	});
 
 	const currentToastPayload = getCurrentUpdateToastPayload();
 	if (currentToastPayload) {

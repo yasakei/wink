@@ -14,7 +14,7 @@ import {
 } from "electron";
 import { getHudCaptureExcludedProcessIds } from "../../../src/lib/hudCaptureProtection";
 import { showCursor } from "../../cursorHider";
-import { getHudOverlayCaptureProtectionEnabled, beginHudCaptureProtection } from "../../windows";
+import { beginHudCaptureProtection, getHudOverlayCaptureProtectionEnabled } from "../../windows";
 import { ALLOW_RECORDLY_WINDOW_CAPTURE } from "../constants";
 import { startWindowBoundsCapture, stopWindowBoundsCapture } from "../cursor/bounds";
 import { startInteractionCapture, stopInteractionCapture } from "../cursor/interaction";
@@ -39,6 +39,7 @@ import {
 	getNativeCaptureHelperBinaryPath,
 	getSystemCursorHelperBinaryPath,
 	getSystemCursorHelperSourcePath,
+	getWaylandCaptureHelperPath,
 	getWindowsCaptureExePath,
 } from "../paths/binaries";
 import { rememberApprovedLocalReadPath } from "../project/manager";
@@ -152,6 +153,7 @@ import {
 	parseWindowId,
 } from "../utils";
 import { resolveWindowsCaptureTarget } from "../windowsCaptureSelection";
+import { isLikelyLinuxWaylandSession } from "./sourceMapping";
 import { bringSelectedWindowForward } from "./sources";
 
 const execFileAsync = promisify(execFile);
@@ -395,6 +397,76 @@ async function resolveExistingPath(...candidates: Array<string | null | undefine
 	return null;
 }
 
+function waitForLinuxCaptureReady(process: ChildProcessWithoutNullStreams): Promise<void> {
+	return new Promise((resolve, reject) => {
+		let settled = false;
+		let output = "";
+		const cleanup = () => {
+			clearTimeout(timeout);
+			process.stdout?.off("data", onData);
+			process.stderr?.off("data", onErrorData);
+			process.off("error", onError);
+			process.off("close", onClose);
+		};
+		const finish = (error?: Error) => {
+			if (settled) return;
+			settled = true;
+			cleanup();
+			if (error) reject(error);
+			else resolve();
+		};
+		const onData = (chunk: Buffer) => {
+			output += chunk.toString();
+			setNativeCaptureOutputBuffer(output);
+			if (output.includes("READY:")) finish();
+		};
+		const onErrorData = (chunk: Buffer) => {
+			console.warn(`[linux-portal-capture] ${chunk.toString().trim()}`);
+		};
+		const onError = (error: Error) => finish(error);
+		const onClose = (code: number | null) => {
+			if (!settled) finish(new Error(`Linux portal capture exited before ready (${code})`));
+		};
+		const timeout = setTimeout(
+			() => finish(new Error("Timed out waiting for Linux portal capture")),
+			30000,
+		);
+		process.stdout?.on("data", onData);
+		process.stderr?.on("data", onErrorData);
+		process.once("error", onError);
+		process.once("close", onClose);
+	});
+}
+
+function waitForLinuxCaptureStop(process: ChildProcessWithoutNullStreams): Promise<void> {
+	return new Promise((resolve, reject) => {
+		let settled = false;
+		const cleanup = () => {
+			clearTimeout(timeout);
+			process.off("error", onError);
+			process.off("close", onClose);
+		};
+		const finish = (error?: Error) => {
+			if (settled) return;
+			settled = true;
+			cleanup();
+			if (error) reject(error);
+			else resolve();
+		};
+		const onError = (error: Error) => finish(error);
+		const onClose = (code: number | null) => {
+			if (code === 0) finish();
+			else finish(new Error(`Linux portal capture exited with code ${code}`));
+		};
+		const timeout = setTimeout(
+			() => finish(new Error("Timed out stopping Linux portal capture")),
+			30000,
+		);
+		process.once("error", onError);
+		process.once("close", onClose);
+	});
+}
+
 export function registerRecordingHandlers(
 	onRecordingStateChange?: (recording: boolean, sourceName: string) => void,
 ) {
@@ -406,6 +478,56 @@ export function registerRecordingHandlers(
 			const visibleWindowBounds = source.id?.startsWith("window:")
 				? await bringSelectedWindowForward(source)
 				: null;
+
+			if (process.platform === "linux" && isLikelyLinuxWaylandSession(process.env)) {
+				if (nativeScreenRecordingActive) {
+					return {
+						success: false,
+						message: "A native Wayland screen recording is already active.",
+					};
+				}
+
+				const helperPath = getWaylandCaptureHelperPath();
+				if (!(await pathExists(helperPath))) {
+					return {
+						success: false,
+						message: "The native Wayland capture helper is not installed.",
+					};
+				}
+
+				const recordingsDir = await getRecordingsDir();
+				const outputPath = path.join(recordingsDir, `recording-${Date.now()}.mp4`);
+				const captureProcess = spawn(helperPath, ["--output", outputPath], {
+					cwd: recordingsDir,
+					stdio: ["pipe", "pipe", "pipe"],
+					env: process.env,
+				}) as ChildProcessWithoutNullStreams;
+				setNativeCaptureProcess(captureProcess);
+				setNativeCaptureTargetPath(outputPath);
+				setNativeCaptureSystemAudioPath(null);
+				setNativeCaptureMicrophonePath(null);
+				setNativeCaptureOutputBuffer("");
+				setNativeCaptureStopRequested(false);
+				setNativeCapturePaused(false);
+				try {
+					await waitForLinuxCaptureReady(captureProcess);
+					setNativeScreenRecordingActive(true);
+					return {
+						success: true,
+						microphoneFallbackRequired: Boolean(options?.capturesMicrophone),
+					};
+				} catch (error) {
+					captureProcess.kill();
+					setNativeCaptureProcess(null);
+					setNativeCaptureTargetPath(null);
+					setNativeCaptureOutputBuffer("");
+					return {
+						success: false,
+						message: "Failed to start native Wayland screen recording",
+						error: String(error),
+					};
+				}
+			}
 
 			// Windows native capture path
 			if (process.platform === "win32") {
@@ -940,6 +1062,39 @@ export function registerRecordingHandlers(
 		const start = Date.now();
 		console.log("[PERF:MAIN] Handler: stop-native-screen-recording: STARTED");
 		try {
+			if (process.platform === "linux" && nativeScreenRecordingActive) {
+				const captureProcess = nativeCaptureProcess;
+				const outputPath = nativeCaptureTargetPath;
+				try {
+					if (!captureProcess || !outputPath) {
+						throw new Error("Native Wayland capture process is not running");
+					}
+					setNativeCaptureStopRequested(true);
+					captureProcess.stdin.write("stop\n");
+					await waitForLinuxCaptureStop(captureProcess);
+					setNativeCaptureProcess(null);
+					setNativeScreenRecordingActive(false);
+					setNativeCaptureTargetPath(null);
+					setNativeCaptureStopRequested(false);
+					setNativeCapturePaused(false);
+					if (!(await pathExists(outputPath))) {
+						throw new Error("Native Wayland recording output was not created");
+					}
+					return await finalizeStoredVideo(outputPath);
+				} catch (error) {
+					setNativeCaptureProcess(null);
+					setNativeScreenRecordingActive(false);
+					setNativeCaptureTargetPath(null);
+					setNativeCaptureStopRequested(false);
+					setNativeCapturePaused(false);
+					return {
+						success: false,
+						message: "Failed to stop native Wayland screen recording",
+						error: String(error),
+					};
+				}
+			}
+
 			// Windows native capture stop path
 			if (process.platform === "win32" && windowsNativeCaptureActive) {
 				let stagedTempVideoPath: string | null = null;
@@ -1860,21 +2015,24 @@ export function registerRecordingHandlers(
 	});
 
 	ipcMain.handle("set-recording-state", (_, recording: boolean) => {
+		const useBrowserCapturedCursor = isLikelyLinuxWaylandSession(process.env);
 		if (recording) {
 			stopCursorCapture();
 			stopInteractionCapture();
 			startWindowBoundsCapture();
 			void startNativeCursorMonitor();
-			setIsCursorCaptureActive(true);
+			setIsCursorCaptureActive(!useBrowserCapturedCursor);
 			setActiveCursorSamples([]);
 			setPendingCursorSamples([]);
 			setCursorCaptureStartTimeMs(Date.now());
 			resetCursorCaptureClock();
 			setLinuxCursorScreenPoint(null);
 			setLastLeftClick(null);
-			sampleCursorPoint();
-			startCursorSampling();
-			void startInteractionCapture();
+			if (!useBrowserCapturedCursor) {
+				sampleCursorPoint();
+				startCursorSampling();
+				void startInteractionCapture();
+			}
 		} else {
 			setIsCursorCaptureActive(false);
 			stopCursorCapture();

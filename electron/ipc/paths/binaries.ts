@@ -121,6 +121,27 @@ export function getWindowsCaptureExePath(): string {
 	return resolvePreferredWindowsNativeHelperPath("wgc-capture", "wgc-capture.exe");
 }
 
+export function getWaylandCaptureHelperCandidates(): string[] {
+	return [
+		getPrebundledNativeHelperPath("wayland-capture-cli"),
+		path.join(
+			app.getAppPath(),
+			"libs",
+			"wayland-capture",
+			"target",
+			"debug",
+			"wayland-capture-cli",
+		),
+	];
+}
+
+export function getWaylandCaptureHelperPath(): string {
+	return (
+		getWaylandCaptureHelperCandidates().find((candidate) => existsSync(candidate)) ??
+		getWaylandCaptureHelperCandidates()[0]
+	);
+}
+
 export function getCursorMonitorExePath(): string {
 	return resolvePreferredWindowsNativeHelperPath("cursor-monitor", "cursor-monitor.exe");
 }

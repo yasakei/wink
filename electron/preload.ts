@@ -982,6 +982,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	getPlatform: () => {
 		return ipcRenderer.invoke("get-platform");
 	},
+	getHyprlandWindowRulesStatus: () => {
+		return ipcRenderer.invoke("get-hyprland-window-rules-status");
+	},
+	setHyprlandWindowRulesEnabled: (enabled: boolean) => {
+		return ipcRenderer.invoke("set-hyprland-window-rules-enabled", enabled);
+	},
 	isWindowFullscreen: () => {
 		return ipcRenderer.invoke("get-window-fullscreen");
 	},

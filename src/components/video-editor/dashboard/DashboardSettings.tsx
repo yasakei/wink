@@ -1,10 +1,10 @@
-import { SettingsSections, SettingsCategory } from "../SettingsSections";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { SettingsRow } from "../SettingsRow";
-import { Switch } from "@/components/ui/switch";
-import { supportsHudCaptureProtection } from "@/lib/hudCaptureProtection";
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/toast";
+import { supportsHudCaptureProtection } from "@/lib/hudCaptureProtection";
+import { SettingsRow } from "../SettingsRow";
+import { SettingsCategory, SettingsSections } from "../SettingsSections";
 export const DashboardSettingsContext = createContext<ReactNode>(null);
 export function DashboardSettings({ onImportFile }: { onImportFile: () => Promise<void> }) {
 	const settingsContent = useContext(DashboardSettingsContext);
@@ -13,6 +13,9 @@ export function DashboardSettings({ onImportFile }: { onImportFile: () => Promis
 	const [hideHud, setHideHud] = useState(true);
 	const [captureSupported, setCaptureSupported] = useState(false);
 	const [busy, setBusy] = useState(false);
+	const [appVersion, setAppVersion] = useState("");
+	const [hyprlandRulesAvailable, setHyprlandRulesAvailable] = useState(false);
+	const [hyprlandRulesEnabled, setHyprlandRulesEnabled] = useState(false);
 	const run = async (action: () => Promise<void>) => {
 		setBusy(true);
 		try {
@@ -29,12 +32,17 @@ export function DashboardSettings({ onImportFile }: { onImportFile: () => Promis
 			window.electronAPI.getRecordingsDirectory(),
 			window.electronAPI.getHudOverlayCaptureProtection(),
 			window.electronAPI.getPlatform(),
+			window.electronAPI.getAppVersion(),
+			window.electronAPI.getHyprlandWindowRulesStatus(),
 		])
-			.then(([directory, protection, platform]) => {
+			.then(([directory, protection, platform, version, hyprlandRules]) => {
 				if (!active) return;
 				if (directory.success) setRecordings(directory.path);
 				if (protection.success) setHideHud(protection.enabled);
 				setCaptureSupported(supportsHudCaptureProtection(platform));
+				setAppVersion(version);
+				setHyprlandRulesAvailable(hyprlandRules.available);
+				setHyprlandRulesEnabled(hyprlandRules.enabled);
 			})
 			.catch((error) => toast.error(String(error)));
 		return () => {
@@ -112,6 +120,54 @@ export function DashboardSettings({ onImportFile }: { onImportFile: () => Promis
 					)}
 				</SettingsCategory>
 				<SettingsCategory category="advanced">
+					{hyprlandRulesAvailable && (
+						<SettingsRow
+							title="Hyprland menu styling"
+							description="Remove Hyprland blur, borders, and shadows from Wink's floating menu."
+						>
+							<Switch
+								aria-label="Hyprland menu styling"
+								checked={hyprlandRulesEnabled}
+								disabled={busy}
+								onCheckedChange={(enabled) =>
+									void run(async () => {
+										const result =
+											await window.electronAPI.setHyprlandWindowRulesEnabled(
+												enabled,
+											);
+										if (!result.success)
+											throw Error(
+												result.error || "Could not update Hyprland styling",
+											);
+										setHyprlandRulesEnabled(result.enabled);
+									})
+								}
+							/>
+						</SettingsRow>
+					)}
+					<SettingsRow
+						title="About Wink"
+						description={
+							<span className="block max-w-md text-xs leading-relaxed">
+								{appVersion ? `Wink ${appVersion}` : "Wink"} is a downstream rebrand
+								of Recordly, Copyright © 2026 webadderall. Recordly began as a fork
+								of OpenScreen, Copyright © 2025 Siddharth Vaddem. Licensed under the
+								GNU Affero General Public License v3.0.
+							</span>
+						}
+					>
+						<Button
+							variant="secondary"
+							size="sm"
+							onClick={() =>
+								void window.electronAPI.openExternalUrl(
+									"https://github.com/webadderallorg/Recordly",
+								)
+							}
+						>
+							Original project
+						</Button>
+					</SettingsRow>
 					{import.meta.env.DEV && (
 						<SettingsRow title="Preview update UI">
 							<Button

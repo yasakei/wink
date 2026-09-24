@@ -149,6 +149,14 @@ describe("resolveBrowserCaptureCursorPolicy", () => {
 		});
 	});
 
+	it("uses the browser captured cursor on generic Linux Wayland", () => {
+		expect(resolveBrowserCaptureCursorPolicy({ linuxWayland: true })).toEqual({
+			streamCursor: "always",
+			hideOsCursorBeforeRecording: false,
+			hideEditorOverlayCursorByDefault: true,
+		});
+	});
+
 	it("uses the browser captured cursor after native Windows capture fails to start", () => {
 		expect(
 			resolveBrowserCaptureCursorPolicy({ nativeWindowsCaptureStartFailed: true }),

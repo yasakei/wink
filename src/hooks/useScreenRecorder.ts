@@ -190,9 +190,19 @@ export function normalizeBrowserMicrophoneProfile(value?: string | null): Browse
 
 export function resolveBrowserCaptureCursorPolicy({
 	nativeWindowsCaptureStartFailed = false,
+	linuxWayland = false,
 }: {
 	nativeWindowsCaptureStartFailed?: boolean;
+	linuxWayland?: boolean;
 } = {}): BrowserCaptureCursorPolicy {
+	if (linuxWayland) {
+		return {
+			streamCursor: "always",
+			hideOsCursorBeforeRecording: false,
+			hideEditorOverlayCursorByDefault: true,
+		};
+	}
+
 	if (nativeWindowsCaptureStartFailed) {
 		// If WGC already failed, avoid the telemetry overlay path that can lag on
 		// constrained Windows systems; keep the browser-captured cursor instead.
@@ -433,6 +443,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 	);
 	const requestedBrowserMicrophoneProfile = useRef<string | null>(null);
 	const hideEditorOverlayCursorByDefault = useRef(false);
+	const intentionalBrowserCaptureStop = useRef(false);
 
 	const notifyRecordingFinalizationFailure = useCallback(async (message: string) => {
 		setFinalizing(false);
@@ -557,8 +568,8 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			await window.electronAPI.openScreenRecordingPreferences();
 			alert(
 				options.startup
-					? "Recordly needs Screen Recording permission before you start. System Settings has been opened. After enabling it, quit and reopen Recordly."
-					: "Screen Recording permission is still missing. System Settings has been opened again. Enable it, then quit and reopen Recordly before recording.",
+					? "Wink needs Screen Recording permission before you start. System Settings has been opened. After enabling it, quit and reopen Wink."
+					: "Screen Recording permission is still missing. System Settings has been opened again. Enable it, then quit and reopen Wink before recording.",
 			);
 			return false;
 		}
@@ -580,8 +591,8 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 		await window.electronAPI.openAccessibilityPreferences();
 		alert(
 			options.startup
-				? "Recordly also needs Accessibility permission for cursor tracking. System Settings has been opened. After enabling it, quit and reopen Recordly."
-				: "Accessibility permission is still missing. System Settings has been opened again. Enable it, then quit and reopen Recordly before recording.",
+				? "Wink also needs Accessibility permission for cursor tracking. System Settings has been opened. After enabling it, quit and reopen Wink."
+				: "Accessibility permission is still missing. System Settings has been opened again. Enable it, then quit and reopen Wink before recording.",
 		);
 
 		return false;
@@ -612,6 +623,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 	};
 
 	const cleanupCapturedMedia = useCallback(() => {
+		intentionalBrowserCaptureStop.current = true;
 		if (stream.current) {
 			stream.current.getTracks().forEach((track) => track.stop());
 			stream.current = null;
@@ -1127,6 +1139,8 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 
 	const prepareRecordingStart = useCallback(async () => {
 		const platform = await window.electronAPI.getPlatform();
+		const linuxWindowSystem =
+			platform === "linux" ? await window.electronAPI.getLinuxWindowSystem?.() : null;
 		hideEditorOverlayCursorByDefault.current = false;
 		const existingSource = await window.electronAPI.getSelectedSource();
 		const selectedSource =
@@ -1202,6 +1216,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 
 		return {
 			platform,
+			linuxWayland: platform === "linux" && linuxWindowSystem === "wayland",
 			selectedSource,
 			useNativeMacScreenCapture,
 			useNativeWindowsCapture,
@@ -1688,10 +1703,21 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				return;
 			}
 
-			const { selectedSource, useNativeMacScreenCapture, useNativeWindowsCapture, micLabel } =
-				preparedStart;
-			const useNativeCapture = useNativeMacScreenCapture || useNativeWindowsCapture;
-			const shouldWarmStartNativeCapture = useNativeCapture && countdownDelay > 0;
+			const {
+				selectedSource,
+				useNativeMacScreenCapture,
+				useNativeWindowsCapture,
+				linuxWayland,
+				micLabel,
+			} = preparedStart;
+			const useNativeLinuxCapture = linuxWayland;
+			if (useNativeLinuxCapture) {
+				hideEditorOverlayCursorByDefault.current = true;
+			}
+			const useNativeCapture =
+				useNativeMacScreenCapture || useNativeWindowsCapture || useNativeLinuxCapture;
+			const shouldWarmStartNativeCapture =
+				(useNativeMacScreenCapture || useNativeWindowsCapture) && countdownDelay > 0;
 			if (countdownDelay > 0 && !shouldWarmStartNativeCapture) {
 				setCountdownActive(true);
 				try {
@@ -1921,8 +1947,10 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				resetRecordingClock(recordingSessionTimestamp.current);
 			}
 
+			intentionalBrowserCaptureStop.current = false;
 			const browserCursorPolicy = resolveBrowserCaptureCursorPolicy({
 				nativeWindowsCaptureStartFailed,
+				linuxWayland,
 			});
 			hideEditorOverlayCursorByDefault.current =
 				browserCursorPolicy.hideEditorOverlayCursorByDefault;
@@ -1955,6 +1983,26 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 
 			let videoTrack: MediaStreamTrack | undefined;
 			let systemAudioIncluded = false;
+			let portalTrackEnded = false;
+			let videoTrackWatched = false;
+			const watchVideoTrack = (track: MediaStreamTrack) => {
+				videoTrackWatched = true;
+				track.addEventListener(
+					"ended",
+					() => {
+						portalTrackEnded = true;
+						if (
+							!intentionalBrowserCaptureStop.current &&
+							recordingStartGeneration.current === startGeneration &&
+							mediaRecorder.current
+						) {
+							console.warn("Screen sharing ended; finalizing the browser recording.");
+							stopRecording.current();
+						}
+					},
+					{ once: true },
+				);
+			};
 			const mediaDevices = navigator.mediaDevices as DesktopCaptureMediaDevices;
 			const useLinuxPortal = selectedSource.id === "screen:linux-portal";
 			const browserScreenVideoConstraints = {
@@ -2030,6 +2078,7 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 				if (!videoTrack) {
 					throw new Error("Video track is not available.");
 				}
+				watchVideoTrack(videoTrack);
 
 				stream.current.addTrack(videoTrack);
 
@@ -2108,6 +2157,12 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 			if (!stream.current || !videoTrack) {
 				throw new Error("Media stream is not available.");
 			}
+			if (!videoTrackWatched) {
+				watchVideoTrack(videoTrack);
+			}
+			if (portalTrackEnded) {
+				throw new Error("Screen sharing ended before recording started.");
+			}
 
 			try {
 				await videoTrack.applyConstraints({
@@ -2130,6 +2185,10 @@ export function useScreenRecorder(): UseScreenRecorderReturn {
 
 			width = Math.floor(width / CODEC_ALIGNMENT) * CODEC_ALIGNMENT;
 			height = Math.floor(height / CODEC_ALIGNMENT) * CODEC_ALIGNMENT;
+
+			if (portalTrackEnded) {
+				throw new Error("Screen sharing ended before recording started.");
+			}
 
 			const videoBitsPerSecond = computeBitrate(width, height);
 			const mimeType = selectMimeType();

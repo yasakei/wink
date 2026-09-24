@@ -2,6 +2,7 @@ export interface GpuSwitches {
 	useAngle?: string;
 	useGl?: string;
 	disableFeatures?: string[];
+	disableGpuCompositing?: boolean;
 }
 
 function normalizeLinuxWindowSystem(value: string | undefined): "wayland" | "x11" | null {
@@ -18,6 +19,16 @@ function getForcedLinuxWindowSystem(env: NodeJS.ProcessEnv): "wayland" | "x11" |
 		normalizeLinuxWindowSystem(env.OZONE_PLATFORM) ??
 		normalizeLinuxWindowSystem(env.ELECTRON_OZONE_PLATFORM_HINT)
 	);
+}
+
+function isLikelyLinuxWaylandSession(env: NodeJS.ProcessEnv): boolean {
+	const forcedWindowSystem = getForcedLinuxWindowSystem(env);
+	if (forcedWindowSystem) {
+		return forcedWindowSystem === "wayland";
+	}
+
+	const sessionType = env.XDG_SESSION_TYPE?.toLowerCase();
+	return sessionType === "wayland" || Boolean(env.WAYLAND_DISPLAY);
 }
 
 export function shouldForceLinuxEgl(env: NodeJS.ProcessEnv): boolean {
@@ -59,6 +70,7 @@ export function getGpuSwitches(
 		return {
 			useGl: shouldForceLinuxEgl(env) ? "egl" : undefined,
 			disableFeatures: ["VaapiVideoDecoder", "VaapiVideoEncoder"],
+			...(isLikelyLinuxWaylandSession(env) ? { disableGpuCompositing: true } : {}),
 		};
 	}
 

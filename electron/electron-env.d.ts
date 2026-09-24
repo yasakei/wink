@@ -926,7 +926,20 @@ interface Window {
 			callback: (chrome: { trafficLightsVisible: boolean }) => void,
 		) => () => void;
 		getPlatform: () => Promise<string>;
+		getHyprlandWindowRulesStatus: () => Promise<{
+			available: boolean;
+			enabled: boolean;
+			configPath: string | null;
+		}>;
+		setHyprlandWindowRulesEnabled: (enabled: boolean) => Promise<{
+			available: boolean;
+			enabled: boolean;
+			configPath: string | null;
+			success: boolean;
+			error?: string;
+		}>;
 		isWindowFullscreen: () => Promise<boolean>;
+
 		onWindowFullscreenChanged: (callback: (isFullscreen: boolean) => void) => () => void;
 		getLinuxWindowSystem: () => Promise<"wayland" | "x11" | null>;
 		ackAuthCallbackUrl: (url: string) => Promise<void>;

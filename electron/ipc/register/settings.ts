@@ -1,8 +1,12 @@
-import { createCountdownController } from "../../countdownController";
 import fs from "node:fs/promises";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { hasAppSetting, readAppSettingsStore, writeAppSettingsStore } from "../../appSettingsStore";
+import { createCountdownController } from "../../countdownController";
 import { hideCursor } from "../../cursorHider";
+import {
+	getHyprlandWindowRulesStatus,
+	setHyprlandWindowRulesEnabled,
+} from "../../hyprlandWindowRules";
 import { createCountdownWindow } from "../../windows";
 import { COUNTDOWN_SETTINGS_FILE, RECORDINGS_SETTINGS_FILE, SHORTCUTS_FILE } from "../constants";
 import {
@@ -61,6 +65,30 @@ export function registerSettingsHandlers() {
 
 	ipcMain.handle("get-platform", () => {
 		return process.platform;
+	});
+
+	ipcMain.handle("get-hyprland-window-rules-status", () => {
+		return getHyprlandWindowRulesStatus();
+	});
+
+	ipcMain.handle("set-hyprland-window-rules-enabled", async (_event, enabled: unknown) => {
+		if (typeof enabled !== "boolean") {
+			return {
+				...getHyprlandWindowRulesStatus(),
+				success: false,
+				error: "Enabled must be a boolean",
+			};
+		}
+
+		try {
+			return await setHyprlandWindowRulesEnabled(enabled);
+		} catch (error) {
+			return {
+				...getHyprlandWindowRulesStatus(),
+				success: false,
+				error: String(error),
+			};
+		}
 	});
 
 	ipcMain.on("app-settings:get", (event, key: unknown) => {

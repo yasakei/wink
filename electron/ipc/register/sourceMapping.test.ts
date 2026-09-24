@@ -1,6 +1,32 @@
 import { describe, expect, it } from "vitest";
 
-import { getScreenSourceIdForDisplay, LINUX_PORTAL_SCREEN_SOURCE_ID } from "./sourceMapping";
+import {
+	getLinuxWindowSystem,
+	getScreenSourceIdForDisplay,
+	LINUX_PORTAL_SCREEN_SOURCE_ID,
+} from "./sourceMapping";
+
+describe("getLinuxWindowSystem", () => {
+	it("honors an explicit X11 ozone override", () => {
+		expect(
+			getLinuxWindowSystem(
+				{ XDG_SESSION_TYPE: "wayland", WAYLAND_DISPLAY: "wayland-0" },
+				["recordly", "--ozone-platform=x11"],
+				"linux",
+			),
+		).toBe("x11");
+	});
+
+	it("detects a native Wayland session", () => {
+		expect(
+			getLinuxWindowSystem(
+				{ XDG_SESSION_TYPE: "wayland", WAYLAND_DISPLAY: "wayland-0" },
+				[],
+				"linux",
+			),
+		).toBe("wayland");
+	});
+});
 
 describe("getScreenSourceIdForDisplay", () => {
 	it("keeps the live Electron screen source when one is available", () => {
