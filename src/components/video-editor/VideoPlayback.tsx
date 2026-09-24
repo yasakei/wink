@@ -112,17 +112,17 @@ import {
 import { updateOverlayIndicator } from "./videoPlayback/overlayUtils";
 import { supportsPreviewPlaybackRate } from "./videoPlayback/playbackRate";
 import { PreviewVideoSource } from "./videoPlayback/previewVideoSource";
-import { usePreviewVideoReady } from "./videoPlayback/usePreviewVideoReady";
 import { getSceneEffectMetrics } from "./videoPlayback/sceneEffects";
 import {
 	resolvePreviewMotionMode,
 	resolveSceneZoomTarget,
 	shouldComposePreviewFrame,
 } from "./videoPlayback/sceneMotion";
+import { usePreviewVideoReady } from "./videoPlayback/usePreviewVideoReady";
 import {
 	getWebcamMediaTargetTimeSeconds,
-	isWebcamVisibleAtSourceTime,
 	isWebcamMediaSynchronized,
+	isWebcamVisibleAtSourceTime,
 	shouldSeekWebcamMedia,
 } from "./videoPlayback/webcamSync";
 import {
@@ -1905,6 +1905,7 @@ const VideoPlayback = forwardRef<VideoPlaybackRef, VideoPlaybackProps>(
 			video.pause();
 
 			let preserveCameraAcrossCut = false;
+			let lastPublishedTimelineTime = -Infinity;
 			const transport = createClipPlayback({
 				video,
 				getClips: () => clipRegionsRef.current,
@@ -1914,7 +1915,14 @@ const VideoPlayback = forwardRef<VideoPlaybackRef, VideoPlaybackProps>(
 				onTime: (time, source) => {
 					timelineTimeRef.current = time;
 					if (source !== null) currentTimeRef.current = source * 1000;
-					onTimeUpdate(time);
+					if (
+						Math.abs(time - lastPublishedTimelineTime) >= 1 / 30 ||
+						time === 0 ||
+						!isPlayingRef.current
+					) {
+						lastPublishedTimelineTime = time;
+						onTimeUpdate(time);
+					}
 				},
 				onPlaying: (playing) => {
 					isPlayingRef.current = playing;

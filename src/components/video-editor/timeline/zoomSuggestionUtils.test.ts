@@ -157,12 +157,9 @@ describe("buildInteractionZoomSuggestions (click-cluster logic)", () => {
 
 	it("returns no-interactions when there are no click telemetry points", () => {
 		// Move events only — no clicks
-		const telemetry: CursorTelemetryPoint[] = [
-			{ timeMs: 0, cx: 0.5, cy: 0.5, interactionType: "move" },
-			{ timeMs: 1_000, cx: 0.5, cy: 0.5, interactionType: "move" },
-			{ timeMs: 2_000, cx: 0.6, cy: 0.6, interactionType: "move" },
-			{ timeMs: TOTAL_MS, cx: 0.6, cy: 0.6, interactionType: "move" },
-		];
+		const telemetry: CursorTelemetryPoint[] = Array.from({ length: 100 }, (_, index) =>
+			makeMove(index * 50, (index / 99) * 0.98, 0.5),
+		);
 
 		const result = buildInteractionZoomSuggestions({
 			cursorTelemetry: telemetry,
@@ -174,7 +171,7 @@ describe("buildInteractionZoomSuggestions (click-cluster logic)", () => {
 		expect(result.suggestions).toHaveLength(0);
 	});
 
-	it("ignores dwell-derived click-like heuristics when there are no explicit clicks", () => {
+	it("uses dwell-derived heuristics when explicit click telemetry is unavailable", () => {
 		const telemetry: CursorTelemetryPoint[] = [
 			makeMove(0, 0.5, 0.5),
 			makeMove(200, 0.5005, 0.5005),
@@ -188,8 +185,8 @@ describe("buildInteractionZoomSuggestions (click-cluster logic)", () => {
 			defaultDurationMs: 3_000,
 		});
 
-		expect(result.status).toBe("no-interactions");
-		expect(result.suggestions).toHaveLength(0);
+		expect(result.status).toBe("ok");
+		expect(result.suggestions.length).toBeGreaterThan(0);
 	});
 
 	it("skips clusters that overlap reserved spans", () => {

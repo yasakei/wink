@@ -148,18 +148,22 @@ export function normalizeCursorTelemetry(
 		}
 	}
 
-	for (const sample of normalized) {
+	for (let index = 0; index < normalized.length; index += 1) {
+		const sample = normalized[index];
 		if (sample.interactionType !== "click" && sample.interactionType !== "double-click") {
 			continue;
 		}
 
-		const mouseUp = normalized.find(
-			(candidate) =>
-				candidate.timeMs > sample.timeMs && candidate.interactionType === "mouseup",
-		);
-		if (!mouseUp) {
-			continue;
+		let mouseUp: CursorTelemetryPoint | undefined;
+		for (let nextIndex = index + 1; nextIndex < normalized.length; nextIndex += 1) {
+			const candidate = normalized[nextIndex];
+			if (candidate.timeMs <= sample.timeMs) continue;
+			if (candidate.interactionType === "mouseup") {
+				mouseUp = candidate;
+				break;
+			}
 		}
+		if (!mouseUp) continue;
 
 		const dragDuration = mouseUp.timeMs - sample.timeMs;
 		const dragDistance = Math.hypot(mouseUp.cx - sample.cx, mouseUp.cy - sample.cy);
@@ -228,13 +232,12 @@ export function detectInteractionCandidates(
 	samples: CursorTelemetryPoint[],
 ): CursorInteractionCandidate[] {
 	// --- Phase 1: Explicit interaction events (from uiohook telemetry) ---
-	const clickEvents = samples.filter((sample) => isExplicitClickType(sample.interactionType));
-
 	const explicitInteractionCandidates: CursorInteractionCandidate[] = [];
 
-	for (const clickSample of clickEvents) {
-		// Classify what happened AFTER this click by analyzing cursor trajectory
-		const kind = classifyPostClickBehavior(samples, clickSample);
+	for (let index = 0; index < samples.length; index += 1) {
+		const clickSample = samples[index];
+		if (!isExplicitClickType(clickSample.interactionType)) continue;
+		const kind = classifyPostClickBehavior(samples, clickSample, index);
 
 		const baseStrength =
 			kind === "double-click-like"
@@ -397,10 +400,14 @@ export function buildInteractionZoomSuggestions(params: {
 		return { status: "no-telemetry", suggestions: [] };
 	}
 
-	// Only use explicit click events (uiohook telemetry) – ignore dwell heuristics
-	const clickCandidates = detectInteractionCandidates(normalizedSamples).filter(
+	const interactionCandidates = detectInteractionCandidates(normalizedSamples);
+	const explicitCandidates = interactionCandidates.filter(
 		(candidate) => candidate.source === "explicit",
 	);
+	const clickCandidates =
+		explicitCandidates.length > 0
+			? explicitCandidates
+			: interactionCandidates.filter((candidate) => candidate.source === "heuristic");
 
 	if (clickCandidates.length === 0) {
 		return { status: "no-interactions", suggestions: [] };
@@ -458,69 +465,63 @@ export function buildInteractionZoomSuggestions(params: {
 function classifyPostClickBehavior(
 	samples: CursorTelemetryPoint[],
 	clickSample: CursorTelemetryPoint,
+	clickIndex: number,
 ): CursorInteractionCandidate["kind"] {
-	// Explicit double-click from uiohook
 	if (clickSample.interactionType === "double-click") {
 		return "double-click-like";
 	}
 
 	const clickTime = clickSample.timeMs;
-
-	// Check for mouseup shortly after (drag detection)
-	const mouseUpAfter = samples.find(
-		(s) =>
-			s.interactionType === "mouseup" && s.timeMs > clickTime && s.timeMs - clickTime < 3000,
-	);
+	let mouseUpAfter: CursorTelemetryPoint | undefined;
+	const moveSamples: CursorTelemetryPoint[] = [];
+	for (let index = clickIndex + 1; index < samples.length; index += 1) {
+		const sample = samples[index];
+		const elapsed = sample.timeMs - clickTime;
+		if (elapsed > 3000) break;
+		if (!mouseUpAfter && sample.interactionType === "mouseup") {
+			mouseUpAfter = sample;
+		}
+		if (
+			elapsed > 100 &&
+			elapsed <= 2000 &&
+			(!sample.interactionType || sample.interactionType === "move")
+		) {
+			moveSamples.push(sample);
+		}
+	}
 
 	if (mouseUpAfter) {
 		const dragDx = Math.abs(mouseUpAfter.cx - clickSample.cx);
 		const dragDy = Math.abs(mouseUpAfter.cy - clickSample.cy);
 		const dragDuration = mouseUpAfter.timeMs - clickTime;
-
-		// Text selection: horizontal drag > 3% of screen, mostly horizontal, duration 200ms+
 		if (dragDuration >= 200 && dragDx > 0.03 && dragDx > dragDy * 1.8) {
 			return "text-selection";
 		}
 	}
 
-	// Analyze trajectory in the 400ms-2000ms window after click
-	const moveSamples = samples.filter(
-		(s) =>
-			s.timeMs > clickTime + 100 &&
-			s.timeMs <= clickTime + 2000 &&
-			(s.interactionType === "move" || !s.interactionType),
-	);
-
 	if (moveSamples.length < 3) {
-		// Very few move samples after click = cursor stayed still = text field click
 		return "text-field-click";
 	}
 
-	// Compute displacement from click position
 	let maxDist = 0;
 	let totalAbsDy = 0;
 	let totalAbsDx = 0;
-	for (const s of moveSamples) {
-		const dist = Math.hypot(s.cx - clickSample.cx, s.cy - clickSample.cy);
+	for (const sample of moveSamples) {
+		const dist = Math.hypot(sample.cx - clickSample.cx, sample.cy - clickSample.cy);
 		maxDist = Math.max(maxDist, dist);
-		totalAbsDx += Math.abs(s.cx - clickSample.cx);
-		totalAbsDy += Math.abs(s.cy - clickSample.cy);
+		totalAbsDx += Math.abs(sample.cx - clickSample.cx);
+		totalAbsDy += Math.abs(sample.cy - clickSample.cy);
 	}
 
-	// Cursor barely moved after click: text field click (dwell)
 	if (maxDist < 0.02) {
 		return "text-field-click";
 	}
 
-	// Primarily downward movement after click: dropdown open
 	const lastMoveSample = moveSamples[moveSamples.length - 1];
 	const netDy = lastMoveSample.cy - clickSample.cy;
-
 	if (netDy > 0.03 && totalAbsDy > totalAbsDx * 1.5) {
 		return "dropdown-open";
 	}
-
-	// Primarily horizontal movement: text selection (fallback if no mouseup)
 	if (totalAbsDx > 0.03 && totalAbsDx > totalAbsDy * 1.8) {
 		return "text-selection";
 	}
