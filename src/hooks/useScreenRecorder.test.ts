@@ -149,11 +149,11 @@ describe("resolveBrowserCaptureCursorPolicy", () => {
 		});
 	});
 
-	it("uses the browser captured cursor on generic Linux Wayland", () => {
+	it("shows the reconstructed overlay cursor on native Linux Wayland capture", () => {
 		expect(resolveBrowserCaptureCursorPolicy({ linuxWayland: true })).toEqual({
 			streamCursor: "always",
 			hideOsCursorBeforeRecording: false,
-			hideEditorOverlayCursorByDefault: true,
+			hideEditorOverlayCursorByDefault: false,
 		});
 	});
 

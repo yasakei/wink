@@ -6,6 +6,8 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::process::{Child, ChildStdin, Command};
 use tokio::sync::mpsc;
 
+pub mod hypr;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FrameKind {
     DmaBuf,
@@ -28,7 +30,7 @@ pub struct CursorPosition {
     pub y: u32,
 }
 
-pub async fn request_screencast() -> Result<(u32, OwnedFd)> {
+pub async fn request_screencast(force_hidden_cursor: bool) -> Result<(u32, OwnedFd)> {
     use ashpd::desktop::{
         screencast::{CursorMode, Screencast, SourceType},
         PersistMode,
@@ -41,8 +43,16 @@ pub async fn request_screencast() -> Result<(u32, OwnedFd)> {
     // xdg-desktop-portal-hyprland only advertises Hidden|Embedded = 3).
     // Query what the portal supports and prefer Metadata, falling back to
     // Embedded (cursor burned into the stream) and then Hidden.
+    //
+    // When `force_hidden_cursor` is set the caller is supplying its own cursor
+    // telemetry out of band (e.g. sampling the Hyprland IPC socket), so we
+    // request a clean, cursor-free plate: this both lets the editor hide the
+    // cursor and stops a burned-in cursor from doubling up with the synthetic
+    // overlay.
     let cursor_modes = proxy.available_cursor_modes().await.ok();
-    let preferred_modes = if let Some(modes) = cursor_modes {
+    let preferred_modes = if force_hidden_cursor {
+        vec![CursorMode::Hidden]
+    } else if let Some(modes) = cursor_modes {
         let mut ordered = Vec::new();
         if modes.contains(CursorMode::Metadata) {
             ordered.push(CursorMode::Metadata);

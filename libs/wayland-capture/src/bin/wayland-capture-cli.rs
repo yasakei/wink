@@ -77,10 +77,54 @@ async fn write_cursor_telemetry(
     Ok(())
 }
 
+/// Poll the Hyprland IPC socket for the cursor position and emit normalised
+/// telemetry samples. Used when the portal can't provide cursor metadata.
+fn spawn_cursor_sampler(
+    socket: std::path::PathBuf,
+    monitor: wayland_capture::hypr::MonitorMap,
+    started_at: Instant,
+    tx: tokio::sync::mpsc::Sender<CursorTelemetrySample>,
+) -> tokio::task::JoinHandle<()> {
+    tokio::spawn(async move {
+        // ~30Hz: matches the capture frame rate without hammering the socket.
+        let mut ticker = tokio::time::interval(std::time::Duration::from_millis(33));
+        loop {
+            ticker.tick().await;
+            let Ok(raw) = wayland_capture::hypr::query(&socket, "cursorpos").await else {
+                continue;
+            };
+            let Some((gx, gy)) = wayland_capture::hypr::parse_cursorpos(&raw) else {
+                continue;
+            };
+            let (cx, cy) = monitor.normalise(gx, gy);
+            let sample = CursorTelemetrySample {
+                time_ms: started_at.elapsed().as_millis() as u64,
+                cx,
+                cy,
+                interaction_type: "move",
+                cursor_type: "arrow",
+            };
+            if tx.send(sample).await.is_err() {
+                break;
+            }
+        }
+    })
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let output_path = output_path()?;
-    let (node_id, fd) = request_screencast().await?;
+    let hide_cursor_requested = std::env::args().skip(1).any(|arg| arg == "--hide-cursor");
+    // On Hyprland the portal only advertises Hidden|Embedded cursor modes, so
+    // it never emits cursor telemetry. Detect the session and, when present,
+    // capture a cursor-free plate while reconstructing the cursor from the
+    // Hyprland IPC socket. This lets the editor both hide the cursor and draw
+    // its synthetic cursor/click overlays.
+    let hypr = wayland_capture::hypr::detect().await;
+    // Capture without a burned-in cursor whenever we can supply telemetry
+    // ourselves, or when the user explicitly asked to hide the cursor.
+    let force_hidden_cursor = hypr.is_some() || hide_cursor_requested;
+    let (node_id, fd) = request_screencast(force_hidden_cursor).await?;
     let (frame_tx, mut frame_rx) = tokio::sync::mpsc::channel(4);
     let _pump = wayland_capture::pump_stream(fd, node_id, frame_tx)?;
 
@@ -95,7 +139,36 @@ async fn main() -> Result<()> {
 
     let started_at = Instant::now();
     let mut cursor_samples = Vec::new();
-    push_cursor_sample(&mut cursor_samples, &first_meta, started_at);
+    // When true, cursor telemetry comes from the Hyprland sampler rather than
+    // the portal's ROI metadata (which Hyprland never sends). Skipped when the
+    // user explicitly hid the cursor, so the recording stays cursor-free.
+    let synthesize_cursor = hypr.is_some() && !hide_cursor_requested;
+    let (cursor_tx, mut cursor_rx) = tokio::sync::mpsc::channel::<CursorTelemetrySample>(256);
+    let mut sampler: Option<tokio::task::JoinHandle<()>> = None;
+    if synthesize_cursor {
+        if let Some((socket, monitors_json)) = hypr {
+            match wayland_capture::hypr::monitor_for_frame(
+                &monitors_json,
+                first_meta.width,
+                first_meta.height,
+            ) {
+                Some(monitor) => {
+                    sampler = Some(spawn_cursor_sampler(
+                        socket,
+                        monitor,
+                        started_at,
+                        cursor_tx.clone(),
+                    ));
+                }
+                None => {
+                    eprintln!("Hyprland monitor geometry unavailable; cursor overlay disabled");
+                }
+            }
+        }
+    } else {
+        push_cursor_sample(&mut cursor_samples, &first_meta, started_at);
+    }
+    drop(cursor_tx);
 
     // The GStreamer pipeline (`videorate`) already enforces a steady 30fps
     // stream, so every frame is pushed exactly once: stop stays instant no
@@ -124,17 +197,32 @@ async fn main() -> Result<()> {
                     Ok(None) | Err(_) => break,
                 }
             }
+            sample = cursor_rx.recv() => {
+                if let Some(sample) = sample {
+                    cursor_samples.push(sample);
+                }
+            }
             frame = frame_rx.recv() => {
                 let Some((meta, bytes)) = frame else {
                     anyhow::bail!("capture stream ended before recording stopped")
                 };
                 if meta.kind == FrameKind::Mem && !bytes.is_empty() {
-                    push_cursor_sample(&mut cursor_samples, &meta, started_at);
+                    if !synthesize_cursor {
+                        push_cursor_sample(&mut cursor_samples, &meta, started_at);
+                    }
                     recorder.push_frame(&bytes).await?;
                     frames_written += 1;
                 }
             }
         }
+    }
+
+    if let Some(sampler) = sampler.take() {
+        sampler.abort();
+    }
+    // Drain cursor samples produced but not yet consumed before finalising.
+    while let Ok(sample) = cursor_rx.try_recv() {
+        cursor_samples.push(sample);
     }
 
     eprintln!(

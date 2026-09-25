@@ -196,10 +196,14 @@ export function resolveBrowserCaptureCursorPolicy({
 	linuxWayland?: boolean;
 } = {}): BrowserCaptureCursorPolicy {
 	if (linuxWayland) {
+		// The native Wayland helper captures a cursor-free plate and supplies
+		// cursor telemetry out of band, so the reconstructed overlay cursor is
+		// shown by default (and can be toggled off) rather than hidden to avoid
+		// a burned-in double.
 		return {
 			streamCursor: "always",
 			hideOsCursorBeforeRecording: false,
-			hideEditorOverlayCursorByDefault: true,
+			hideEditorOverlayCursorByDefault: false,
 		};
 	}
 

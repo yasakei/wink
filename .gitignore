@@ -51,3 +51,6 @@ gpu-export-probe.mp4
 # Browser test output
 test-results/
 playwright-report/
+
+# Claude Code settings (contains API keys / custom endpoints - never commit)
+.claude/
